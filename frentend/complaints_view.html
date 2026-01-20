@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Complaints - Voice of TN</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">🔊 Voice of TN</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2 style="text-align: center; margin-bottom: 2rem;">All Complaints</h2>
+
+            <div class="form-group">
+                <label>Filter by Department</label>
+                <select id="deptFilter" onchange="filterComplaints()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+
+            <div id="complaintsContainer">
+                <!-- Complaints will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- <script src="js/app.js"></script> -->
+</body>
+
+</html>

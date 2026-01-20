@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Voice of TN</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">🔊 Voice of TN - Admin</div>
+        <div class="nav-links">
+            <a href="#" onclick="adminLogout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2 style="margin-bottom: 2rem;">Dashboard Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalComplaints">0</h3>
+                    <p>Total Complaints</p>
+                </div>
+                <div class="stat-card" style="border-color: var(--warning);">
+                    <h3 id="pendingComplaints" style="color: var(--warning);">0</h3>
+                    <p>Pending</p>
+                </div>
+                <div class="stat-card" style="border-color: #3498db;">
+                    <h3 id="inProgressComplaints" style="color: #3498db;">0</h3>
+                    <p>In Progress</p>
+                </div>
+                <div class="stat-card" style="border-color: var(--success);">
+                    <h3 id="solvedComplaints" style="color: var(--success);">0</h3>
+                    <p>Solved</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem;">Manage Complaints</h2>
+
+            <div class="form-group">
+                <label>Filter by Department</label>
+                <select id="deptFilter" onchange="filterComplaints()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Filter by Status</label>
+                <select id="statusFilter" onchange="filterComplaints()">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="solved">Solved</option>
+                </select>
+            </div>
+
+            <div id="complaintsContainer">
+                <!-- Complaints will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 15px; max-width: 600px; width: 90%;">
+            <h3>Update Complaint Status</h3>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="updateStatus">
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="solved">Solved</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Admin Response</label>
+                <textarea id="updateResponse" rows="4"></textarea>
+            </div>
+            <button class="btn btn-success" onclick="saveUpdate()">Save</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- <script src="js/app.js"></script> -->
+</body>
+
+</html>
