@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C-Admin Dashboard - Voice of TN</title>
+    <link rel="stylesheet" href="./css/admin_dashboard.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">🔊 Voice of TN - C-Admin Dashboard</div>
+            <div class="nav-links">
+                <span class="admin-name" id="adminName">C-Admin</span>
+                <a href="../index.html" onclick="adminLogout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="stats-wrapper">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalComplaints">0</h3>
+                    <p>Total Complaints</p>
+                </div>
+                <div class="stat-card warning">
+                    <h3 id="pendingComplaints">0</h3>
+                    <p>Pending Issues</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="inProgressComplaints">0</h3>
+                    <p>In Progress</p>
+                </div>
+                <div class="stat-card success">
+                    <h3 id="updatedByMe">0</h3>
+                    <p>Updated By You</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <h2>Master Complaint Ledger</h2>
+            <div class="filter-bar">
+                <select id="deptFilter" onchange="filterComplaints()" class="form-input filter-select-dept">
+                    <option value="">All Departments</option>
+                </select>
+                <select id="statusFilter" onchange="filterComplaints()" class="form-input filter-select-status">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="solved">Solved</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="complaintsContainer" class="complaints-list-container"></div>
+    </div>
+
+    <!-- Detailed View Modal -->
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Case Evidence Audit</h2>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Update Investigation Status</h3>
+            <p id="modalCaseId" class="modal-case-id"></p>
+
+            <div class="modal-form-group">
+                <label>Set Case Status</label>
+                <select id="updateStatus" class="form-input">
+                    <option value="pending">Pending (Awaiting Action)</option>
+                    <option value="in_progress">In Progress (Under Review)</option>
+                </select>
+                <small class="modal-note">Note: Role restricted to Preliminary & Investigation phases.</small>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Administrative Findings</label>
+                <textarea id="updateResponse" rows="5" class="form-input"
+                    placeholder="Enter findings, evidence notes or update details..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="saveUpdate()" id="saveBtn">Record Update</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        const departments = [
+            "Agriculture Department", "Animal Husbandry, Dairying and Fisheries Department",
+            "Commercial Taxes and Registration Department", "Co-operation, Food and Consumer Protection Department",
+            "Energy Department", "Finance Department", "Health and Family Welfare Department",
+            "Higher Education Department", "Home Department", "Industries Department",
+            "Information Technology Department", "Labour and Employment Department",
+            "Municipal Administration and Water Supply Department", "Public Works Department",
+            "Revenue and Disaster Management Department", "Rural Development and Panchayat Raj Department",
+            "School Education Department", "Social Welfare Department", "Transport Department"
+        ];
+
+        let allComplaints = [];
+        let currentComplaintId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('access_token');
+            const adminType = localStorage.getItem('admin_type');
+            if (!token || adminType !== 'c_admin') {
+                window.location.href = './admin_login.html';
+                return;
+            }
+            document.getElementById('adminName').textContent = localStorage.getItem('admin_name') || 'C-Admin';
+            loadDepartments();
+            refreshData();
+        });
+
+        function refreshData() {
+            loadStats();
+            loadComplaints();
+        }
+
+        function loadDepartments() {
+            const select = document.getElementById('deptFilter');
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept;
+                option.textContent = dept;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                });
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalComplaints').textContent = stats.total;
+                    document.getElementById('pendingComplaints').textContent = stats.pending;
+                    document.getElementById('inProgressComplaints').textContent = stats.in_progress;
+                    document.getElementById('updatedByMe').textContent = stats.updated_by_me;
+                }
+            } catch (error) { console.error('Stats error:', error); }
+        }
+
+        async function loadComplaints() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/c-admin/complaints`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                });
+                if (response.ok) {
+                    allComplaints = await response.json();
+                    displayComplaints(allComplaints);
+                }
+            } catch (error) { console.error('Complaints error:', error); }
+        }
+
+        function displayComplaints(complaints) {
+            const container = document.getElementById('complaintsContainer');
+            if (complaints.length === 0) {
+                container.innerHTML = '<div class="complaint-file">No matching records found.</div>';
+                return;
+            }
+
+            container.innerHTML = complaints.map(c => {
+                const statusClass = `status-${c.status}`;
+                const statusText = c.status.replace('_', ' ');
+                const date = new Date(c.created_at).toLocaleDateString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+
+                // User Avatar
+                const avatar = c.user_profile_picture
+                    ? `http://localhost:8000${c.user_profile_picture}`
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.user_name || 'U')}&background=random`;
+
+                return `
+                        <div class="complaint-file ${statusClass}">
+                            <div class="file-header">
+                                <div class="file-title-section">
+                                    <div class="file-label">Complaint Dossier</div>
+                                    <div class="file-id">CASE #${c.id.toString().padStart(5, '0')}</div>
+                                </div>
+                                <div class="status-stamp ${statusClass}">${statusText}</div>
+                            </div>
+                            
+                            <div class="user-info-bar" onclick="openDetailModal(${c.id})" style="cursor:pointer">
+                                <img src="${avatar}" class="small-avatar" alt="User">
+                                <span class="complainant-name">Complainant: <b>${c.user_name}</b></span>
+                                <span style="font-size:0.7rem; color:var(--primary); margin-left:auto;">[View Evidence]</span>
+                            </div>
+
+                            <div class="file-grid">
+                                <div class="file-field"><span class="field-label">Department</span><span class="field-value">${c.department}</span></div>
+                                <div class="file-field"><span class="field-label">Date Filed</span><span class="field-value">${date}</span></div>
+                            </div>
+
+                            <div class="file-field">
+                                <span class="field-label">Case Subject</span>
+                                <span class="field-value field-value-highlight">${c.title}</span>
+                            </div>
+
+                            ${c.admin_response ? `
+                                <div class="admin-response-box">
+                                    <h4>📝 Office Findings & Updates</h4>
+                                    <p>${c.admin_response}</p>
+                                </div>
+                            ` : ''}
+
+                            <div class="file-actions">
+                                 <button class="modal-btn modal-btn-cancel" onclick="openDetailModal(${c.id})">🔍 Audit Evidence</button>
+                                 ${c.status !== 'solved' ? `<button class="update-btn" onclick="openUpdateModal(${c.id})">⚖️ Record Findings</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        async function openDetailModal(id) {
+            const c = allComplaints.find(item => item.id === id);
+            if (!c) return;
+
+            const modal = document.getElementById('detailModal');
+            const modalBody = document.getElementById('modalBody');
+
+            const date = new Date(c.created_at).toLocaleString('en-IN');
+            const avatar = c.user_profile_picture
+                ? `http://localhost:8000${c.user_profile_picture}`
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.user_name || 'U')}&background=random`;
+
+            modalBody.innerHTML = `
+                <div class="detail-full">
+                    <div class="detail-header-row">
+                        <div class="user-block">
+                             <img src="${avatar}" class="large-avatar" alt="User">
+                             <div>
+                                 <h3 style="margin:0">${c.user_name}</h3>
+                                 <span class="field-label">${c.user_email} | ${c.user_phone}</span>
+                             </div>
+                        </div>
+                        <div class="status-stamp status-${c.status}">${c.status.replace('_', ' ')}</div>
+                    </div>
+
+                    <div class="detail-content-grid">
+                        <div class="detail-item">
+                            <span class="field-label">Category</span>
+                            <div class="field-value">${c.subcategory}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="field-label">District</span>
+                            <div class="field-value">${c.district}</div>
+                        </div>
+                         <div class="detail-item">
+                            <span class="field-label">Location</span>
+                            <div class="field-value">📍 ${c.location || 'Not Specified'}</div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <span class="field-label">Official Statement</span>
+                        <div class="full-description-box" style="margin-top:10px;">${c.description}</div>
+                    </div>
+
+                    ${c.image_url ? `
+                        <div class="detail-section">
+                            <span class="field-label">Attached Evidence</span>
+                            <div class="evidence-preview">
+                                <img src="http://localhost:8000${c.image_url}" onclick="window.open(this.src)" style="max-width: 100%; border-radius: 8px; cursor: zoom-in;">
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${c.voice_url ? `
+                        <div class="detail-section">
+                            <span class="field-label">Voice Statement</span>
+                            <audio controls src="http://localhost:8000${c.voice_url}" style="width: 100%; margin-top: 10px;"></audio>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function filterComplaints() {
+            const dept = document.getElementById('deptFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            let filtered = allComplaints;
+            if (dept) filtered = filtered.filter(c => c.department === dept);
+            if (status) filtered = filtered.filter(c => c.status === status);
+            displayComplaints(filtered);
+        }
+
+        function openUpdateModal(id) {
+            currentComplaintId = id;
+            const c = allComplaints.find(comp => comp.id === id);
+            document.getElementById('modalCaseId').textContent = `CASE #${id.toString().padStart(5, '0')}`;
+            document.getElementById('updateStatus').value = c.status === 'solved' ? 'in_progress' : c.status;
+            document.getElementById('updateResponse').value = c.admin_response || '';
+            document.getElementById('updateModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('updateModal').style.display = 'none'; }
+
+        async function saveUpdate() {
+            if (!currentComplaintId) return;
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Recording...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/c-admin/complaints/${currentComplaintId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({
+                        status: document.getElementById('updateStatus').value,
+                        admin_response: document.getElementById('updateResponse').value
+                    })
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    refreshData();
+                } else {
+                    const err = await response.json();
+                    alert(err.detail || 'Update rejected by system');
+                }
+            } catch (error) { alert('Server communication failure'); }
+            finally { btn.disabled = false; btn.textContent = 'Record Update'; }
+        }
+
+        function adminLogout() { localStorage.clear(); window.location.href = '../index.html'; }
+    </script>
+</body>
+
+</html>

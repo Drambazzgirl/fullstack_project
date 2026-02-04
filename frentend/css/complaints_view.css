@@ -1,0 +1,71 @@
+/* ========================================
+   Voice of TN - Public Complaints View
+   complaints_view.css - Extends common.css
+   ======================================== */
+
+/* Import common styles */
+@import url('./common.css');
+
+/* ========= Page Header ========= */
+.page-title {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.page-title h1 {
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+}
+
+/* ========= Filter Bar ========= */
+.filter-bar {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin: 2rem auto;
+    max-width: 900px;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.filter-section {
+    flex: 1;
+}
+
+.record-count-section {
+    text-align: right;
+}
+
+.record-count {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+/* ========= Container Override ========= */
+.public-records-container {
+    max-width: 900px;
+}
+
+/* ========= Responsive ========= */
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .record-count-section {
+        text-align: center;
+    }
+}
+
+/* ========= Extended UI Elements (Shared in common.css) ========= */
+
+/* ========= Detailed Modal (Shared in common.css) ========= */

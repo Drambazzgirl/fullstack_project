@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice of TN - Complaint Management System</title>
+    <link rel="stylesheet" href="./frentend/css/index.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">🔊 Voice of TN</div>
+        <div class="nav-links" id="navLinks">
+            <a href="./index.html">Home</a>
+            <a href="./frentend/complaints_view.html">View Complaints</a>
+            <a href="./frentend/login.html">Login</a>
+            <a href="./frentend/register.html">Register</a>
+        </div>
+    </nav>
+
+    <div class="hero" id="heroSection">
+        <h1>Your Voice Matters</h1>
+        <p>Report issues, track progress, and make Tamil Nadu better</p>
+        <a href="./frentend/register.html" class="btn btn-primary">Get Started</a>
+    </div>
+
+    <div class="container">
+        <!-- Stats Banner -->
+        <div class="complaint-stats-banner">
+            <div class="stat-item">
+                <span class="stat-number" id="totalCount">0</span>
+                <span class="stat-label">Total Complaints</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number solved" id="solvedCount">0</span>
+                <span class="stat-label">Issues Resolved</span>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>Public Complaint Record</h2>
+            <p>Transparency in governance: View all submitted complaints and their current status</p>
+        </div>
+
+        <div class="filter-bar" style="max-width: 100%; margin-bottom: 2rem;">
+            <div class="filter-section">
+                <label class="field-label">Search Keywords</label>
+                <input type="text" id="searchInput" onkeyup="filterHomeRecords()"
+                    placeholder="Search title or description..." class="form-input">
+            </div>
+            <div class="filter-section">
+                <label class="field-label">Filter Department</label>
+                <select id="deptFilter" onchange="filterHomeRecords()" class="form-input">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Formal Complaints List -->
+        <div id="complaintsList" class="complaints-list-container">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading records from the database...</p>
+            </div>
+        </div>
+
+        <!-- Detailed View Modal -->
+        <div id="detailModal" class="modal-overlay">
+            <div class="modal-content large-modal">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Case Details</h2>
+                    <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Content filled by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="section-header">
+            <h2>System Process</h2>
+        </div>
+        <div class="user-flow">
+            <div class="flow-step">
+                <div class="flow-icon">📝</div>
+                <h3>Register</h3>
+            </div>
+            <div class="flow-step">
+                <div class="flow-icon">🏛️</div>
+                <h3>Select Dept</h3>
+            </div>
+            <div class="flow-step">
+                <div class="flow-icon">📤</div>
+                <h3>Submit</h3>
+            </div>
+            <div class="flow-step">
+                <div class="flow-icon">📊</div>
+                <h3>Track</h3>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Voice of TN - Official Complaint Management Portal
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        const departments = [
+            "Agriculture Department", "Animal Husbandry, Dairying and Fisheries Department",
+            "Commercial Taxes and Registration Department", "Co-operation, Food and Consumer Protection Department",
+            "Energy Department", "Finance Department", "Health and Family Welfare Department",
+            "Higher Education Department", "Home Department", "Industries Department",
+            "Information Technology Department", "Labour and Employment Department",
+            "Municipal Administration and Water Supply Department", "Public Works Department",
+            "Revenue and Disaster Management Department", "Rural Development and Panchayat Raj Department",
+            "School Education Department", "Social Welfare Department", "Transport Department"
+        ];
+
+        let allRecords = [];
+
+        function loadDeptOptions() {
+            const select = document.getElementById('deptFilter');
+            if (!select) return;
+            departments.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                select.appendChild(opt);
+            });
+        }
+
+        function filterHomeRecords() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const dept = document.getElementById('deptFilter').value;
+
+            let filtered = allRecords;
+            if (query) {
+                filtered = filtered.filter(r =>
+                    r.title.toLowerCase().includes(query) ||
+                    r.description.toLowerCase().includes(query)
+                );
+            }
+            if (dept) {
+                filtered = filtered.filter(r => r.department === dept);
+            }
+            renderHomeComplaints(filtered);
+        }
+
+        function checkAuthentication() {
+            const token = localStorage.getItem('access_token');
+            const navLinks = document.getElementById('navLinks');
+
+            if (token) {
+                const role = localStorage.getItem('role');
+                const adminType = localStorage.getItem('admin_type');
+
+                let dashboardUrl = './frentend/profile.html';
+                if (role === 'admin') {
+                    dashboardUrl = adminType === 'c_admin' ? './frentend/c_admin_dashboard.html' : './frentend/cm_admin_dashboard.html';
+                }
+
+                navLinks.innerHTML = `
+                    <a href="./index.html">Home</a>
+                    <a href="${dashboardUrl}">Dashboard</a>
+                    <a href="#" onclick="logout(); return false;">Logout</a>
+                `;
+            }
+        }
+
+        async function loadComplaints() {
+            const totalCountEl = document.getElementById('totalCount');
+            const solvedCountEl = document.getElementById('solvedCount');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/complaints/`);
+                if (!response.ok) throw new Error('Failed to fetch');
+
+                allRecords = await response.json();
+
+                totalCountEl.textContent = allRecords.length;
+                solvedCountEl.textContent = allRecords.filter(c => c.status === 'solved').length;
+
+                renderHomeComplaints(allRecords);
+
+                // If navigated here with a complaint id, open its detail immediately
+                const params = new URLSearchParams(window.location.search);
+                const openId = params.get('id');
+                if (openId) {
+                    setTimeout(() => {
+                        openDetailModal(Number(openId));
+                        params.delete('id');
+                        const clean = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+                        history.replaceState({}, '', clean);
+                    }, 200);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('complaintsList').innerHTML = '<div class="complaint-file">Unable to connect to the central database.</div>';
+            }
+        }
+
+        function renderHomeComplaints(complaints) {
+            const container = document.getElementById('complaintsList');
+            if (complaints.length === 0) {
+                container.innerHTML = '<div class="complaint-file">No records found matching your filters.</div>';
+                return;
+            }
+
+            container.innerHTML = complaints.map(c => {
+                const statusClass = `status-${c.status}`;
+                const statusText = c.status.replace('_', ' ');
+                const date = new Date(c.created_at).toLocaleDateString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+
+                const avatar = c.user_profile_picture
+                    ? `http://localhost:8000${c.user_profile_picture}`
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.user_name || 'U')}&background=random`;
+
+                return `
+                        <div class="complaint-file ${statusClass}" onclick="openDetailModal(${c.id})">
+                            <div class="file-header">
+                                <div class="file-title-section">
+                                    <div class="file-label">Official Record</div>
+                                    <div class="file-id">CASE #${c.id.toString().padStart(5, '0')}</div>
+                                </div>
+                                <div class="status-stamp ${statusClass}">${statusText}</div>
+                            </div>
+
+                            <div class="user-info-bar">
+                                <img src="${avatar}" class="small-avatar" alt="User">
+                                <span class="complainant-name">By <b>${c.user_name || 'Anonymous User'}</b></span>
+                            </div>
+                            
+                            <div class="file-grid">
+                                <div class="file-field">
+                                    <span class="field-label">Department</span>
+                                    <span class="field-value">${c.department}</span>
+                                </div>
+                                <div class="file-field">
+                                    <span class="field-label">Date Filed</span>
+                                    <span class="field-value">${date}</span>
+                                </div>
+                            </div>
+
+                            <div class="file-field">
+                                <span class="field-label">Subject</span>
+                                <span class="field-value field-value-highlight">${c.title}</span>
+                            </div>
+
+                            <div class="file-description">
+                                <p class="truncate-text">${c.description}</p>
+                            </div>
+                            
+                            <div class="view-details-link">
+                                 View full report →
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        async function fetchAllForModal() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/complaints/`);
+                if (response.ok) allRecords = await response.json();
+            } catch (e) { }
+        }
+
+        async function openDetailModal(id) {
+            // If allRecords is empty, fetch it
+            if (allRecords.length === 0) {
+                const response = await fetch(`${API_BASE_URL}/complaints/`);
+                if (response.ok) allRecords = await response.json();
+            }
+
+            const c = allRecords.find(item => item.id === id);
+            if (!c) return;
+
+            const modal = document.getElementById('detailModal');
+            const modalBody = document.getElementById('modalBody');
+
+            const date = new Date(c.created_at).toLocaleString('en-IN');
+            const avatar = c.user_profile_picture
+                ? `http://localhost:8000${c.user_profile_picture}`
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.user_name || 'U')}&background=random`;
+
+            modalBody.innerHTML = `
+                <div class="detail-full">
+                    <div class="detail-header-row">
+                        <div class="user-block">
+                             <img src="${avatar}" class="large-avatar" alt="User">
+                             <div>
+                                 <h3 style="margin:0">${c.user_name || 'Anonymous User'}</h3>
+                                 <span class="field-label">Verified Citizen</span>
+                             </div>
+                        </div>
+                        <div class="status-stamp status-${c.status}">${c.status.replace('_', ' ')}</div>
+                    </div>
+
+                    <div class="detail-content-grid">
+                        <div class="detail-item">
+                            <span class="field-label">Case ID</span>
+                            <div class="field-value-highlight">CASE #${c.id.toString().padStart(5, '0')}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="field-label">Department</span>
+                            <div class="field-value">${c.department}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="field-label">Category</span>
+                            <div class="field-value">${c.subcategory}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="field-label">District</span>
+                            <div class="field-value">${c.district}</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="field-label">Submission Date</span>
+                            <div class="field-value">${date}</div>
+                        </div>
+                         <div class="detail-item">
+                            <span class="field-label">Location</span>
+                            <div class="field-value">📍 ${c.location || 'Not Specified'}</div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <span class="field-label">Subject</span>
+                        <h2 style="margin: 10px 0;">${c.title}</h2>
+                    </div>
+
+                    <div class="detail-section">
+                        <span class="field-label">Formal Statement</span>
+                        <div class="full-description-box">${c.description}</div>
+                    </div>
+
+                    ${c.image_url ? `
+                        <div class="detail-section">
+                            <span class="field-label">Attached Evidence</span>
+                            <div class="evidence-preview">
+                                <img src="http://localhost:8000${c.image_url}" onclick="window.open(this.src)" style="max-width: 100%; border-radius: 8px; cursor: zoom-in;">
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${c.voice_url ? `
+                        <div class="detail-section">
+                            <span class="field-label">Voice Statement</span>
+                            <audio controls src="http://localhost:8000${c.voice_url}" style="width: 100%; margin-top: 10px;"></audio>
+                        </div>
+                    ` : ''}
+
+                    ${c.admin_response ? `
+                        <div class="admin-response-box">
+                            <h4>🛡️ Official Resolution Message</h4>
+                            <p>${c.admin_response}</p>
+                        </div>
+                    ` : `
+                        <div class="waiting-message">
+                             🛡️ This case is currently under administrative oversight. Waiting for official response.
+                        </div>
+                    `}
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = './index.html';
+        }
+
+        checkAuthentication();
+        loadDeptOptions();
+        loadComplaints();
+    </script>
+</body>
+
+</html>

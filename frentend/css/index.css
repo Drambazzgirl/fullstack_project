@@ -1,0 +1,203 @@
+/* ========================================
+   Voice of TN - Index/Home Page Styles
+   index.css - Extends common.css
+   ======================================== */
+
+/* Import common styles inheritance */
+@import url('./common.css');
+
+/* ========= Hero Section ========= */
+.hero {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: white;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%),
+        url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+}
+
+.hero .btn-primary {
+    background: white;
+    color: var(--primary-color);
+    padding: 0.85rem 2rem;
+    border-radius: 25px;
+}
+
+.hero .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ========= Stats Banner ========= */
+.complaint-stats-banner {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: -3rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    display: block;
+}
+
+.stat-number.solved {
+    color: var(--success-color);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* ========= Section Headers ========= */
+.section-header {
+    text-align: center;
+    margin: 4rem 0 2rem;
+}
+
+.section-header h2 {
+    font-size: 2.2rem;
+    color: var(--text-dark);
+}
+
+.section-header p {
+    color: var(--text-muted);
+}
+
+/* ========= User Flow Section ========= */
+.user-flow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 4rem;
+}
+
+.flow-step {
+    flex: 1;
+    min-width: 180px;
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.flow-step:hover {
+    transform: translateY(-5px);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+}
+
+.flow-step:hover .flow-icon {
+    transform: scale(1.2);
+}
+
+.flow-step::after {
+    content: '→';
+    position: absolute;
+    right: -1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.flow-step:last-child::after {
+    display: none;
+}
+
+.flow-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    transition: transform 0.3s;
+}
+
+.flow-step h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+/* ========= Spinner ========= */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-state {
+    text-align: center;
+    padding: 3rem;
+}
+
+/* ========= Responsive ========= */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .complaint-stats-banner {
+        flex-direction: column;
+        margin-top: -2rem;
+        gap: 1rem;
+    }
+
+    .flow-step::after {
+        display: none;
+    }
+
+    .flow-step {
+        min-width: 140px;
+    }
+}

@@ -4,81 +4,426 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Complaint - Voice of TN</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>File a Complaint • Voice of TN</title>
+    <link rel="stylesheet" href="../frentend/css/complaint.css">
+
 </head>
 
 <body>
     <nav class="navbar">
-        <div class="logo">🔊 Voice of TN</div>
-        <div class="nav-links">
-            <a href="departments.html">Back to Departments</a>
-            <a href="profile.html">Profile</a>
-            <a href="#" onclick="logout()">Logout</a>
+        <div class="nav-content">
+            <a href="../index.html" class="logo">🔊 Voice of TN</a>
+            <div class="nav-links">
+                <a href="../frentend/departments.html">Back to Departments</a>
+                <a href="../frentend/profile.html">Profile</a>
+                <a onclick="logout()">Logout</a>
+            </div>
         </div>
     </nav>
 
-    <div class="container" style="max-width: 800px;">
-        <div class="card">
-            <h2 style="text-align: center; margin-bottom: 0.5rem;">File a Complaint</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 2rem;">
-                Department: <strong id="deptName"></strong>
-            </p>
+    <div class="container">
+        <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <h2 style="font-size: 24px; font-weight: 600; text-align: center; margin-bottom: 30px;">File a New Complaint
+            </h2>
 
             <form id="complaintForm">
                 <div class="form-group">
-                    <label>Subcategory</label>
-                    <select id="subcategory" required>
-                        <option value="">Select Subcategory</option>
-                        <option value="Infrastructure">Infrastructure</option>
-                        <option value="Service Issue">Service Issue</option>
-                        <option value="Corruption">Corruption</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <label>Department</label>
+                    <input type="text" id="category" class="form-input" readonly required style="background: #f9f9f9;">
                 </div>
 
-                <div class="form-group">
-                    <label>Age</label>
-                    <input type="number" id="age" min="1" max="120" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Gender</label>
-                    <select id="gender" required>
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Address</label>
-                    <textarea id="address" rows="2" required></textarea>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>District</label>
+                        <select id="district" class="form-input" required>
+                            <option value="">Select District</option>
+                            <option value="Ariyalur">Ariyalur</option>
+                            <option value="Chengalpattu">Chengalpattu</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Coimbatore">Coimbatore</option>
+                            <option value="Cuddalore">Cuddalore</option>
+                            <option value="Dharmapuri">Dharmapuri</option>
+                            <option value="Dindigul">Dindigul</option>
+                            <option value="Erode">Erode</option>
+                            <option value="Kallakurichi">Kallakurichi</option>
+                            <option value="Kanchipuram">Kanchipuram</option>
+                            <option value="Kanyakumari">Kanyakumari</option>
+                            <option value="Karur">Karur</option>
+                            <option value="Krishnagiri">Krishnagiri</option>
+                            <option value="Madurai">Madurai</option>
+                            <option value="Mayiladuthurai">Mayiladuthurai</option>
+                            <option value="Nagapattinam">Nagapattinam</option>
+                            <option value="Namakkal">Namakkal</option>
+                            <option value="Nilgiris">Nilgiris</option>
+                            <option value="Perambalur">Perambalur</option>
+                            <option value="Pudukkottai">Pudukkottai</option>
+                            <option value="Ramanathapuram">Ramanathapuram</option>
+                            <option value="Ranipet">Ranipet</option>
+                            <option value="Salem">Salem</option>
+                            <option value="Sivaganga">Sivaganga</option>
+                            <option value="Tenkasi">Tenkasi</option>
+                            <option value="Thanjavur">Thanjavur</option>
+                            <option value="Theni">Theni</option>
+                            <option value="Thoothukudi">Thoothukudi</option>
+                            <option value="Tiruchirappalli">Tiruchirappalli</option>
+                            <option value="Tirunelveli">Tirunelveli</option>
+                            <option value="Tirupattur">Tirupattur</option>
+                            <option value="Tiruppur">Tiruppur</option>
+                            <option value="Tiruvallur">Tiruvallur</option>
+                            <option value="Tiruvannamalai">Tiruvannamalai</option>
+                            <option value="Tiruvarur">Tiruvarur</option>
+                            <option value="Vellore">Vellore</option>
+                            <option value="Viluppuram">Viluppuram</option>
+                            <option value="Virudhunagar">Virudhunagar</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Subcategory</label>
+                        <select id="subcategory" class="form-input" required>
+                            <option value="">Select Category</option>
+                            <option value="Infrastructure">Infrastructure</option>
+                            <option value="Service Issue">Service Issue</option>
+                            <option value="Corruption">Corruption</option>
+                            <option value="Delay">Delay</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Complaint Title</label>
-                    <input type="text" id="title" required>
+                    <input type="text" id="title" class="form-input" placeholder="What is the issue?" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Complaint Description</label>
-                    <textarea id="description" rows="5" required></textarea>
+                    <label>Description</label>
+                    <textarea id="description" class="form-input" rows="4" placeholder="Detail your experience..."
+                        required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>Upload Supporting Documents (optional)</label>
-                    <input type="file" id="file" accept="image/*,.pdf,.doc,.docx">
+                    <label>Exact Location</label>
+                    <input type="text" id="address" class="form-input" placeholder="Street, landmark, etc." required>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Complaint</button>
+                <!-- Voice Recording Section -->
+                <div class="form-group">
+                    <label>Voice Recording (Optional)</label>
+                    <div class="voice-recording">
+                        <div class="voice-controls">
+                            <button type="button" id="recordBtn" class="voice-btn record-btn">
+                                🎤 Record Voice
+                            </button>
+                            <button type="button" id="stopBtn" class="voice-btn stop-btn">
+                                ⏹️ Stop Recording
+                            </button>
+                            <span id="recordingStatus" class="recording-status"></span>
+                        </div>
+
+                        <div id="audioPlayback" style="display: none;">
+                            <audio id="audioPlayer" class="audio-player" controls></audio>
+                            <button type="button" id="deleteRecording" class="voice-btn delete-btn"
+                                style="margin-top: 0.5rem;">
+                                🗑️ Delete Recording
+                            </button>
+                        </div>
+
+                        <div class="file-upload">
+                            <label style="font-size: 0.9rem; color: #666;">Or upload audio file:</label>
+                            <input type="file" id="voiceFile" accept="audio/*" style="margin-top: 0.5rem;">
+                            <small style="color: #999; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                                Supported: MP3, WAV, M4A, OGG
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Evidence (Photo)</label>
+                    <div class="drop-zone" id="dropZone">
+                        <span class="drop-zone__prompt">Drag & Drop Image or Click to Upload</span>
+                        <input type="file" name="file" id="complaintImage" class="drop-zone__input"
+                            accept="image/png, image/jpeg, image/jpg">
+                    </div>
+                    <small style="color: grey; font-size: 11px; margin-top: 5px; display: block;">Max 5MB. JPG or PNG
+                        supported.</small>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; height: 45px; margin-top: 20px;"
+                    id="submitBtn">
+                    Submit Complaint
+                </button>
             </form>
         </div>
     </div>
 
-<!-- 
-    <script src="js/app.js"></script> -->
+    <footer>
+        @2026 Voice of TN, ALL Rights Reserved
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        // Voice Recording Variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordedAudioBlob = null;
+
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const audioPlayback = document.getElementById('audioPlayback');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const deleteRecording = document.getElementById('deleteRecording');
+        const voiceFileInput = document.getElementById('voiceFile');
+
+        // Start Recording
+        recordBtn.addEventListener('click', async function () {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    recordedAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(recordedAudioBlob);
+                    audioPlayer.src = audioUrl;
+                    audioPlayback.style.display = 'block';
+                    recordingStatus.textContent = 'Recording completed ✓';
+                    recordingStatus.classList.remove('active');
+                    recordingStatus.style.color = '#28a745';
+                };
+
+                mediaRecorder.start();
+                recordBtn.style.display = 'none';
+                stopBtn.style.display = 'flex';
+                recordingStatus.textContent = 'Recording... 🔴';
+                recordingStatus.classList.add('active');
+
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                recordingStatus.textContent = 'Microphone access denied';
+                recordingStatus.style.color = '#dc3545';
+                showToast('Unable to access microphone. Please check permissions.', 'error');
+            }
+        });
+
+        // Stop Recording
+        stopBtn.addEventListener('click', function () {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                recordBtn.style.display = 'flex';
+                stopBtn.style.display = 'none';
+            }
+        });
+
+        // Delete Recording
+        deleteRecording.addEventListener('click', function () {
+            recordedAudioBlob = null;
+            audioPlayback.style.display = 'none';
+            recordingStatus.textContent = '';
+            audioPlayer.src = '';
+            showToast('Recording deleted', 'success');
+        });
+
+        // Clear recording if user uploads file instead
+        voiceFileInput.addEventListener('change', function () {
+            if (voiceFileInput.files.length > 0) {
+                recordedAudioBlob = null;
+                audioPlayback.style.display = 'none';
+                recordingStatus.textContent = 'Audio file selected: ' + voiceFileInput.files[0].name;
+                recordingStatus.style.color = '#667eea';
+                recordingStatus.classList.remove('active');
+            }
+        });
+
+        // Image Drag and Drop
+        const dropZone = document.getElementById("dropZone");
+        const inputElement = document.getElementById("complaintImage");
+
+        dropZone.addEventListener("click", (e) => inputElement.click());
+
+        inputElement.addEventListener("change", (e) => {
+            if (inputElement.files.length) {
+                updateThumbnail(dropZone, inputElement.files[0]);
+            }
+        });
+
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("drop-zone--over");
+        });
+
+        ["dragleave", "dragend"].forEach((type) => {
+            dropZone.addEventListener(type, (e) => {
+                dropZone.classList.remove("drop-zone--over");
+            });
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length) {
+                inputElement.files = e.dataTransfer.files;
+                updateThumbnail(dropZone, e.dataTransfer.files[0]);
+            }
+            dropZone.classList.remove("drop-zone--over");
+        });
+
+        function updateThumbnail(dropZoneElement, file) {
+            let thumbnailElement = dropZoneElement.querySelector(".drop-zone__thumb");
+
+            if (dropZoneElement.querySelector(".drop-zone__prompt")) {
+                dropZoneElement.querySelector(".drop-zone__prompt").remove();
+            }
+
+            if (!thumbnailElement) {
+                thumbnailElement = document.createElement("div");
+                thumbnailElement.classList.add("drop-zone__thumb");
+                dropZoneElement.appendChild(thumbnailElement);
+            }
+
+            thumbnailElement.dataset.label = file.name;
+
+            if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    thumbnailElement.style.backgroundImage = `url('${reader.result}')`;
+                };
+            } else {
+                thumbnailElement.style.backgroundImage = null;
+            }
+        }
+
+        // Form Submission
+        document.getElementById('complaintForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                showToast('Please login first', 'error');
+                setTimeout(() => window.location.href = './login.html', 1500);
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                // Prepare FormData for file upload
+                const formData = new FormData();
+
+                // Add complaint data
+                formData.append('department', document.getElementById('category').value);
+                formData.append('district', document.getElementById('district').value);
+                formData.append('subcategory', document.getElementById('subcategory').value);
+                formData.append('title', document.getElementById('title').value);
+                formData.append('description', document.getElementById('description').value);
+                formData.append('location', document.getElementById('address').value);
+
+                // Add image if exists
+                const imageInput = document.getElementById('complaintImage');
+                if (imageInput.files.length > 0) {
+                    formData.append('image', imageInput.files[0]);
+                }
+
+                // Add voice recording if exists
+                if (recordedAudioBlob) {
+                    formData.append('voice_recording', recordedAudioBlob, 'voice_recording.wav');
+                } else if (voiceFileInput.files.length > 0) {
+                    formData.append('voice_recording', voiceFileInput.files[0]);
+                }
+
+                // Submit complaint
+                const response = await fetch(`${API_BASE_URL}/complaints/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('access_token');
+                    showToast('Session expired. Please login again.', 'error');
+                    setTimeout(() => window.location.href = '../index.html', 1500);
+                    return;
+                }
+
+                if (response.ok) {
+                    const complaint = await response.json();
+                    showToast('Complaint submitted successfully!', 'success');
+
+                    // Reset form
+                    document.getElementById('complaintForm').reset();
+                    recordedAudioBlob = null;
+                    audioPlayback.style.display = 'none';
+                    recordingStatus.textContent = '';
+
+                    // Redirect immediately to the public complaint view and open the new record
+                    setTimeout(() => {
+                        // navigate to complaints public ledger and auto-open the new complaint
+                        window.location.href = `./complaints_view.html?id=${complaint.id}`;
+                    }, 800);
+                } else {
+                    const error = await response.json();
+                    showToast(error.detail || 'Failed to submit complaint', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Complaint';
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                showToast('Failed to submit complaint. Please try again.', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Submit Complaint';
+            }
+        });
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeft = `5px solid ${type === 'success' ? '#28a745' : '#dc3545'}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Set department from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const deptName = urlParams.get('dept');
+        if (deptName) {
+            document.getElementById('category').value = deptName;
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('access_token');
+                window.location.href = '../index.html';
+            }
+        }
+
+
+        // Check if user is logged in
+        // function checkAuth() {
+        //     const token = localStorage.getItem('access_token');
+        //     if (!token) {
+        //         window.location.href = '../frentend/login.html';
+        //     }
+        // }
+        // checkAuth();
+
+    </script>
 </body>
 
 </html>

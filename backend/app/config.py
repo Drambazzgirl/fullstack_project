@@ -1,13 +1,19 @@
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
+from typing import Optional
 
-load_dotenv()
-
-class Settings:
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-for-jwt-tokens-here")
-    ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
-
+class Settings(BaseSettings):
+    # Database Configuration
+    DATABASE_URL: str = "postgresql://postgres:AcademyRootPassword@localhost:5432/VoiceOfTN"
+   
+    
+    # JWT Secret key (change this to a random secret key in production)
+    SECRET_KEY: str = "your-secret-key-change-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440 # 24 hours
+    # Optional secret required to register admin users via the API
+    ADMIN_REGISTRATION_SECRET: Optional[str] = None
+    
+    class Config:
+        env_file = ".env"
 
 settings = Settings()

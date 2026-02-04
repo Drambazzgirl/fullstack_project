@@ -1,0 +1,238 @@
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+ :root {
+     --primary: #FF6B35;
+     --secondary: #F7931E;
+     --accent: #FDC830;
+     --dark: #2C3E50;
+     --light: #ECF0F1;
+     --success: #27AE60;
+     --warning: #E67E22;
+     --danger: #E74C3C;
+ }
+
+ body {
+     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     min-height: 100vh;
+     color: var(--dark);
+ }
+
+ .navbar {
+     background: white;
+     padding: 1rem 2rem;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ .logo {
+     font-size: 1.8rem;
+     font-weight: bold;
+     background: linear-gradient(135deg, var(--primary), var(--secondary));
+     -webkit-background-clip: text;
+     background-clip: text;
+     -webkit-text-fill-color: transparent;
+ }
+
+ .nav-links a {
+     margin-left: 2rem;
+     text-decoration: none;
+     color: var(--dark);
+     font-weight: 500;
+     transition: color 0.3s;
+ }
+
+ .nav-links a:hover {
+     color: var(--primary);
+ }
+
+ .container {
+     max-width: 1200px;
+     margin: 2rem auto;
+     padding: 0 2rem;
+ }
+
+ .card {
+     background: white;
+     padding: 2rem;
+     border-radius: 12px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+ }
+
+ .card h2 {
+     text-align: center;
+     margin-bottom: 1rem;
+ }
+
+ .card-subtitle {
+     text-align: center;
+     color: #666;
+     margin-bottom: 2rem;
+ }
+
+ .dept-icon {
+     font-size: 48px;
+     margin-bottom: 15px;
+ }
+
+ .dept-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+     gap: 50px;
+     padding: 60px;
+ }
+
+ .dept-card {
+     background: white;
+     border-radius: 12px;
+     padding: 20px;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     border: 1px solid #e2e8f0;
+     transition: transform 0.2s, box-shadow 0.2s;
+     text-align: center;
+ }
+
+ .dept-card:hover {
+     transform: translateY(-4px);
+     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+ }
+
+ .dept-card img {
+     width: 64px;
+     height: 64px;
+     margin: 0 auto 15px;
+     display: block;
+     border-radius: 8px;
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     padding: 12px;
+ }
+
+ .dept-card h3 {
+     color: #2d3748;
+     margin: 0 0 10px 0;
+     font-size: 18px;
+     font-weight: 600;
+     line-height: 1.4;
+ }
+
+ .dept-card p {
+     color: #718096;
+     margin: 0 0 15px 0;
+     font-size: 14px;
+     line-height: 1.5;
+ }
+
+ .dept-card small {
+     color: #a0aec0;
+     font-size: 12px;
+     margin-bottom: 15px;
+     display: block;
+ }
+
+ .dept-card button {
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     color: white;
+     border: none;
+     padding: 10px 20px;
+     border-radius: 6px;
+     font-size: 14px;
+     font-weight: 500;
+     cursor: pointer;
+     transition: all 0.2s;
+     width: 100%;
+     margin-top: 10px;
+ }
+
+ .dept-card button:hover {
+     background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+     transform: translateY(-1px);
+ }
+
+ .search-container {
+     text-align: center;
+     margin-bottom: 30px;
+ }
+
+ .search-input {
+     padding: 12px 20px;
+     border: 2px solid #e2e8f0;
+     border-radius: 8px;
+     font-size: 16px;
+     width: 300px;
+     max-width: 90%;
+     margin-bottom: 20px;
+ }
+
+ .search-input:focus {
+     outline: none;
+     border-color: #667eea;
+ }
+
+ /* Modal Styles */
+ .modal {
+     display: none;
+     position: fixed;
+     z-index: 1000;
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.5);
+     backdrop-filter: blur(3px);
+ }
+
+ .modal-content {
+     background-color: white;
+     margin: 2% auto;
+     padding: 0;
+     border-radius: 12px;
+     width: 95%;
+     max-width: 900px;
+     max-height: 95vh;
+     overflow-y: auto;
+     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+ }
+
+ .modal-header {
+     padding: 20px 30px;
+     border-bottom: 1px solid #e2e8f0;
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     color: white;
+     border-radius: 12px 12px 0 0;
+ }
+
+ .modal-header h2 {
+     margin: 0;
+     font-size: 24px;
+ }
+
+ .close {
+     color: white;
+     float: right;
+     font-size: 28px;
+     font-weight: bold;
+     cursor: pointer;
+     line-height: 1;
+ }
+
+ .close:hover {
+     opacity: 0.8;
+ }
+
+ .modal-body {
+     padding: 30px;
+ }
+
+ footer {
+     text-align: center;
+     padding: 1rem 0;
+     background: #f8f9fa;
+     color: #127ad4;
+     margin-top: 2rem;
+ }

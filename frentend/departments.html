@@ -5,24 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Department - Voice of TN</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/departments.css">
 </head>
 
 <body>
     <nav class="navbar">
         <div class="logo">🔊 Voice of TN</div>
         <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="profile.html">Profile</a>
+            <a href="../index.html">Home</a>
+            <a href="./profile.html">Profile</a>
             <a href="#" onclick="logout()">Logout</a>
         </div>
     </nav>
 
     <div class="container">
         <div class="card">
-            <h2 style="text-align: center; margin-bottom: 2rem;">Select Department</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Choose the department related to your
-                complaint</p>
+            <h2>Select Department</h2>
+            <p class="card-subtitle">Choose the department related to your complaint</p>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search departments..."
+                    onkeyup="filterDepartments()">
+            </div>
 
             <div class="dept-grid" id="departmentGrid">
                 <!-- Departments will be loaded here -->
@@ -30,8 +35,91 @@
         </div>
     </div>
 
+    <footer>
+        @2026 voice of TN, ALL Rights Reserved
+    </footer>
 
-    <script src="js/app.js"></script>
+    <script>
+        const departments = [
+            { name: "Agriculture Department", description: "Handles agricultural policies, farmer welfare, crop management, and rural development schemes.", icon: "🌾", stats: "15 Services • 8 Sections" },
+            { name: "Animal Husbandry, Dairying and Fisheries Department", description: "Manages livestock development, dairy farming, fisheries, and animal health services.", icon: "🐄", stats: "12 Services • 6 Sections" },
+            { name: "Commercial Taxes and Registration Department", description: "Handles GST, commercial tax collection, trade licenses, and business registrations.", icon: "💼", stats: "20 Services • 10 Sections" },
+            { name: "Co-operation, Food and Consumer Protection Department", description: "Manages cooperative societies, food distribution, consumer rights, and fair trade practices.", icon: "🤝", stats: "18 Services • 9 Sections" },
+            { name: "Energy Department", description: "Oversees electricity supply, renewable energy, power distribution, and energy conservation.", icon: "⚡", stats: "14 Services • 7 Sections" },
+            { name: "Finance Department", description: "Handles state budget, financial planning, treasury operations, and fiscal policies.", icon: "💰", stats: "25 Services • 12 Sections" },
+            { name: "Health and Family Welfare Department", description: "Manages healthcare services, hospitals, medical facilities, and public health programs.", icon: "🏥", stats: "30 Services • 15 Sections" },
+            { name: "Higher Education Department", description: "Oversees universities, colleges, higher education institutions, and academic policies.", icon: "🎓", stats: "22 Services • 11 Sections" },
+            { name: "Home Department", description: "Handles law and order, police administration, prison management, and internal security.", icon: "🏛️", stats: "16 Services • 8 Sections" },
+            { name: "Industries Department", description: "Promotes industrial development, manages industrial estates, and supports MSMEs.", icon: "🏭", stats: "19 Services • 9 Sections" },
+            { name: "Information Technology Department", description: "Manages e-governance, digital services, IT infrastructure, and technology initiatives.", icon: "💻", stats: "13 Services • 6 Sections" },
+            { name: "Labour and Employment Department", description: "Handles labor welfare, employment schemes, industrial relations, and worker safety.", icon: "👷", stats: "17 Services • 8 Sections" },
+            { name: "Municipal Administration and Water Supply Department", description: "Manages urban development, water supply, sewerage, and municipal governance.", icon: "🏙️", stats: "21 Services • 10 Sections" },
+            { name: "Public Works Department", description: "Handles road construction, building maintenance, infrastructure development, and public facilities.", icon: "🚧", stats: "24 Services • 12 Sections" },
+            { name: "Revenue and Disaster Management Department", description: "Manages land records, disaster response, revenue collection, and emergency services.", icon: "📋", stats: "26 Services • 13 Sections" },
+            { name: "Rural Development and Panchayat Raj Department", description: "Oversees rural development schemes, panchayat governance, and village infrastructure.", icon: "🌾", stats: "23 Services • 11 Sections" },
+            { name: "School Education Department", description: "Manages primary and secondary education, schools, teachers, and educational policies.", icon: "🏫", stats: "28 Services • 14 Sections" },
+            { name: "Social Welfare Department", description: "Handles welfare schemes, social security, disability services, and community development.", icon: "🤲", stats: "20 Services • 10 Sections" },
+            { name: "Transport Department", description: "Manages vehicle registration, driving licenses, road transport, and traffic regulations.", icon: "🚌", stats: "16 Services • 8 Sections" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDepartments();
+        });
+
+        function loadDepartments() {
+            const grid = document.getElementById('departmentGrid');
+            grid.innerHTML = '';
+            departments.forEach(dept => {
+                const card = createDepartmentCard(dept);
+                grid.appendChild(card);
+            });
+        }
+
+        function createDepartmentCard(dept) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'dept-card';
+            cardDiv.innerHTML = `
+                <div class="dept-icon">${dept.icon}</div>
+                <h3>${dept.name}</h3>
+                <p>${dept.description}</p>
+                <small>${dept.stats}</small>
+                <button onclick="selectDepartment('${dept.name}')">File Complaint</button>
+            `;
+            return cardDiv;
+        }
+
+        function filterDepartments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredDepts = departments.filter(dept =>
+                dept.name.toLowerCase().includes(searchTerm) ||
+                dept.description.toLowerCase().includes(searchTerm)
+            );
+
+            const grid = document.getElementById('departmentGrid');
+            grid.innerHTML = '';
+            filteredDepts.forEach(dept => {
+                const card = createDepartmentCard(dept);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectDepartment(deptName) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                alert('Please login first to file a complaint.');
+                window.location.href = './login.html';
+                return;
+            }
+            window.location.href = `./complaint.html?dept=${encodeURIComponent(deptName)}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token_type');
+            localStorage.removeItem('user_email');
+            window.location.href = '../index.html';
+        }
+    </script>
 </body>
 
 </html>

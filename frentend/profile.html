@@ -4,102 +4,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Voice of TN</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Citizen Profile • Voice of TN</title>
+    <link rel="stylesheet" href="./css/profile.css">
 </head>
 
 <body>
     <nav class="navbar">
-        <div class="logo">🔊 Voice of TN</div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="departments.html">File Complaint</a>
-            <a href="#" onclick="logout()">Logout</a>
+        <div class="nav-content">
+            <div class="logo">🔊 Voice of TN</div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="./departments.html">Submit Complaint</a>
+                <a href="#" onclick="logout(); return false;">Logout</a>
+            </div>
         </div>
     </nav>
 
     <div class="container">
-        <div class="card">
-            <div class="profile-header">
-                <div class="profile-avatar" id="avatar"></div>
-                <div>
-                    <h2 id="userName"></h2>
-                    <p style="color: #666;" id="userEmail"></p>
+        <div class="profile-card">
+            <div id="avatarPlaceholder">
+                <div class="initials-circle" id="initialsCircle">?</div>
+            </div>
+            <div class="profile-info">
+                <h1 id="fullNameDisplay">Loading...</h1>
+                <p id="userEmail">...</p>
+                <div class="profile-stats">
+                    <div class="p-stat"><b id="totalComplaints">0</b><span>Total Cases</span></div>
+                    <div class="p-stat warning"><b id="pendingComplaints">0</b><span>Pending</span></div>
+                    <div class="p-stat success"><b id="resolvedComplaints">0</b><span>Resolved</span></div>
                 </div>
             </div>
-
-            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                <button class="btn btn-primary" onclick="showEditForm()">Edit Profile</button>
-                <button class="btn btn-secondary" onclick="window.location.href='departments.html'">New
-                    Complaint</button>
-            </div>
-
-            <div id="profileView">
-                <h3>Profile Information</h3>
-                <table style="width: 100%; margin-top: 1rem;">
-                    <tr>
-                        <td style="padding: 0.5rem; font-weight: bold;">Phone:</td>
-                        <td style="padding: 0.5rem;" id="userPhone"></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0.5rem; font-weight: bold;">Address:</td>
-                        <td style="padding: 0.5rem;" id="userAddress"></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0.5rem; font-weight: bold;">Age:</td>
-                        <td style="padding: 0.5rem;" id="userAge"></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0.5rem; font-weight: bold;">Gender:</td>
-                        <td style="padding: 0.5rem;" id="userGender"></td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="editForm" style="display: none;">
-                <h3>Edit Profile</h3>
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" id="editName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="tel" id="editPhone" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <textarea id="editAddress" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Age</label>
-                        <input type="number" id="editAge" min="1" max="120">
-                    </div>
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <select id="editGender">
-                            <option value="">Select</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
-                </form>
+            <div class="profile-actions">
+                <button class="btn-primary" onclick="window.location.href='./departments.html'">New Case</button>
+                <button class="btn-edit" onclick="openEditModal()">Edit Profile</button>
             </div>
         </div>
 
-        <div class="card">
-            <h2 style="margin-bottom: 1.5rem;">My Complaints</h2>
-            <div id="myComplaints">
-                <!-- User complaints will be loaded here -->
+        <div class="tab-nav">
+            <div class="tab-link active" onclick="switchTab('complaints')">MY COMPLAINT LEDGER</div>
+            <div class="tab-link" onclick="switchTab('about')">PERSONAL DATA</div>
+        </div>
+
+        <div id="complaintsSection">
+            <div id="complaintList"></div>
+        </div>
+
+        <div id="aboutSection" class="hide-section">
+            <div class="complaint-file">
+                <div class="file-header">
+                    <div class="file-label">🔒 Verified Identity command center</div>
+                </div>
+                <div style="display: flex; gap: 2rem; align-items: flex-start; margin-top: 1rem;">
+                    <div id="avatarLargePlaceholder"></div>
+                    <div class="file-grid" style="flex: 1;">
+                        <div class="file-field"><span class="field-label">Official Name</span><b class="field-value"
+                                id="infoName" style="color: var(--primary);">...</b></div>
+                        <div class="file-field"><span class="field-label">Primary Contact</span><span
+                                class="field-value" id="infoPhone">...</span></div>
+                        <div class="file-field"><span class="field-label">Gender</span><span class="field-value"
+                                id="infoGender">...</span></div>
+                        <div class="file-field"><span class="field-label">Verified Age</span><span class="field-value"
+                                id="infoAge">...</span></div>
+                        <div class="file-field" style="grid-column: span 2;"><span class="field-label">Registered
+                                Residence</span><span class="field-value" id="infoAddress">...</span></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="editName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="editPhone" class="form-input" pattern="[0-9]{10}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="editAge" class="form-input" min="1" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="editGender" class="form-input">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="editAddress" class="form-input" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Update Profile Picture</label>
+                        <input type="file" id="editPhoto" class="form-input" accept="image/*">
+                        <small style="color: grey;">Upload a square photo for best results (Max 5MB)</small>
+                    </div>
+                </form>
+            </div>
+            <div class="form-footer">
+                <button class="btn-ghost" onclick="closeEditModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveProfile()" id="saveProfileBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="js/app.js"></script>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('access_token');
+            if (!token) { window.location.href = './login.html'; return; }
+
+            // If a specific complaint ID was provided, redirect to public view which will auto-open it
+            const params = new URLSearchParams(window.location.search);
+            const cid = params.get('id');
+            if (cid) {
+                window.location.href = `./complaints_view.html?id=${cid}`;
+                return;
+            }
+
+            loadProfile();
+            loadComplaints();
+            document.getElementById('aboutSection').style.display = 'none';
+        });
+
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                });
+
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    document.getElementById('fullNameDisplay').textContent = currentUser.name;
+                    document.getElementById('userEmail').textContent = currentUser.email;
+                    document.getElementById('infoName').textContent = currentUser.name;
+
+                    const avatarImg = currentUser.profile_picture
+                        ? `<img src="http://localhost:8000${currentUser.profile_picture}" class="profile-img" alt="Profile">`
+                        : `<div class="initials-circle">${currentUser.name.charAt(0).toUpperCase()}</div>`;
+
+                    document.getElementById('avatarPlaceholder').innerHTML = avatarImg;
+
+                    const avatarLarge = currentUser.profile_picture
+                        ? `<img src="http://localhost:8000${currentUser.profile_picture}" style="width:120px; height:120px; border-radius:12px; object-fit:cover; border:2px solid var(--primary);" alt="Profile">`
+                        : `<div class="initials-circle" style="width:120px; height:120px; font-size:3rem;">${currentUser.name.charAt(0).toUpperCase()}</div>`;
+
+                    document.getElementById('avatarLargePlaceholder').innerHTML = avatarLarge;
+
+                    document.getElementById('infoPhone').textContent = currentUser.phone || 'Not Specified';
+                    document.getElementById('infoGender').textContent = currentUser.gender || 'Not Specified';
+                    document.getElementById('infoAge').textContent = currentUser.age || 'Not Specified';
+                    document.getElementById('infoAddress').textContent = currentUser.address || 'Not Specified';
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function loadComplaints() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/complaints/me`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                });
+
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+
+                if (response.ok) {
+                    const complaints = await response.json();
+                    renderComplaints(complaints);
+
+                    document.getElementById('totalComplaints').textContent = complaints.length;
+                    document.getElementById('pendingComplaints').textContent = complaints.filter(c => c.status === 'pending').length;
+                    document.getElementById('resolvedComplaints').textContent = complaints.filter(c => c.status === 'solved').length;
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        function renderComplaints(list) {
+            const container = document.getElementById('complaintList');
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="complaint-file">
+                        <div class="empty-state">
+                            <p>You have not filed any cases yet.</p>
+                            <button class="btn-primary" onclick="window.location.href='./departments.html'">File Your First Complaint</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(c => {
+                const statusClass = `status-${c.status}`;
+                const statusText = c.status.replace('_', ' ');
+                const date = new Date(c.created_at).toLocaleDateString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+
+                return `
+                    <div class="complaint-file ${statusClass}">
+                        <div class="file-header">
+                            <div class="file-title-section">
+                                <div class="file-label">Official Case Record</div>
+                                <div class="file-id">CASE #${c.id.toString().padStart(5, '0')}</div>
+                            </div>
+                            <div class="status-stamp ${statusClass}">${statusText}</div>
+                        </div>
+                        
+                        <div class="file-grid">
+                            <div class="file-field"><span class="field-label">Department</span><span class="field-value">${c.department}</span></div>
+                            <div class="file-field"><span class="field-label">Submission Date</span><span class="field-value">${date}</span></div>
+                            <div class="file-field"><span class="field-label">District</span><span class="field-value">${c.district}</span></div>
+                            <div class="file-field"><span class="field-label">Category</span><span class="field-value">${c.subcategory}</span></div>
+                        </div>
+
+                        <div class="file-field">
+                            <span class="field-label">Subject</span>
+                            <span class="field-value field-value-highlight">${c.title}</span>
+                        </div>
+
+                        <div class="file-description">
+                            <span class="field-label">Submitted Statement</span>
+                            <p>${c.description}</p>
+                        </div>
+
+                        ${c.admin_response ? `
+                            <div class="admin-response-box">
+                                <h4>📝 Office Response</h4>
+                                <p>${c.admin_response}</p>
+                            </div>
+                        ` : '<div class="waiting-message">⏳ Waiting for administrative review...</div>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('complaintsSection').style.display = tab === 'complaints' ? 'block' : 'none';
+            document.getElementById('aboutSection').style.display = tab === 'about' ? 'block' : 'none';
+
+            const links = document.querySelectorAll('.tab-link');
+            links[0].classList.toggle('active', tab === 'complaints');
+            links[1].classList.toggle('active', tab === 'about');
+        }
+
+        function openEditModal() {
+            if (currentUser) {
+                document.getElementById('editName').value = currentUser.name || '';
+                document.getElementById('editPhone').value = currentUser.phone || '';
+                document.getElementById('editAge').value = currentUser.age || '';
+                document.getElementById('editGender').value = currentUser.gender || '';
+                document.getElementById('editAddress').value = currentUser.address || '';
+            }
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function saveProfile() {
+            const btn = document.getElementById('saveProfileBtn');
+            const photoInput = document.getElementById('editPhoto');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                // 1. Handle Photo Upload if exists
+                if (photoInput.files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('file', photoInput.files[0]);
+
+                    const uploadRes = await fetch(`${API_BASE_URL}/auth/upload-profile-picture`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        },
+                        body: formData
+                    });
+
+                    if (!uploadRes.ok) {
+                        const err = await uploadRes.json();
+                        throw new Error(err.detail || 'Photo upload failed');
+                    }
+                }
+
+                // 2. Update Profile Details
+                const updateData = {
+                    name: document.getElementById('editName').value.trim(),
+                    phone: document.getElementById('editPhone').value.trim(),
+                    age: document.getElementById('editAge').value ? parseInt(document.getElementById('editAge').value) : null,
+                    gender: document.getElementById('editGender').value || null,
+                    address: document.getElementById('editAddress').value.trim() || null
+                };
+
+                const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    showToast('Profile updated successfully!', 'success');
+                    closeEditModal();
+                    loadProfile();
+                } else {
+                    const err = await response.json();
+                    showToast(err.detail || 'Failed to update profile', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast(error.message || 'Failed to update profile', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Changes';
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeft = `5px solid ${type === 'success' ? '#28a745' : '#dc3545'}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '../index.html';
+        }
+    </script>
 </body>
 
 </html>
