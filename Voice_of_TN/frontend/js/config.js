@@ -1,5 +1,7 @@
 // config.js - Shared configuration for all pages
 
+// IMPORTANT: When deploying, replace API_BASE_URL with your Vercel backend URL
+// Example: const API_BASE_URL = "https://your-backend.vercel.app/api";
 const API_BASE_URL = "http://localhost:8000/api";
 
 const DEPARTMENTS = [

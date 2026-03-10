@@ -23,9 +23,11 @@ app.add_middleware(
 )
 
 # Serve uploaded files (profile pics, voice recordings)
-os.makedirs("uploads/voices", exist_ok=True)
-os.makedirs("uploads/profiles", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+UPLOAD_BASE = "/tmp/uploads" if os.environ.get("VERCEL") else "uploads"
+os.makedirs(f"{UPLOAD_BASE}/voices", exist_ok=True)
+os.makedirs(f"{UPLOAD_BASE}/profiles", exist_ok=True)
+os.makedirs(f"{UPLOAD_BASE}/proofs", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_BASE), name="uploads")
 
 # Register all route groups
 app.include_router(auth.router)

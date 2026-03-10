@@ -1,0 +1,4 @@
+[build]
+  publish = "."
+
+# No redirects needed for multi-page static HTML sites

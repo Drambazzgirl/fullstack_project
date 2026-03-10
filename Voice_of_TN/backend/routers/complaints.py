@@ -12,8 +12,9 @@ import os, shutil, uuid
 
 router = APIRouter(prefix="/api/complaints", tags=["Complaints"])
 
-VOICE_DIR = "uploads/voices"
-PROOF_DIR = "uploads/proofs"
+UPLOAD_BASE = "/tmp/uploads" if os.environ.get("VERCEL") else "uploads"
+VOICE_DIR = f"{UPLOAD_BASE}/voices"
+PROOF_DIR = f"{UPLOAD_BASE}/proofs"
 os.makedirs(VOICE_DIR, exist_ok=True)
 os.makedirs(PROOF_DIR, exist_ok=True)
 

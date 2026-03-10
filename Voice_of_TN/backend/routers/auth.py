@@ -11,7 +11,8 @@ import os, shutil, uuid
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
-UPLOAD_DIR = "uploads/profiles"
+UPLOAD_BASE = "/tmp/uploads" if os.environ.get("VERCEL") else "uploads"
+UPLOAD_DIR = f"{UPLOAD_BASE}/profiles"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
