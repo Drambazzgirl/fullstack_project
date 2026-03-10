@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Admin - Voice of TN</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="./c_admin_dashboard.html" class="logo">🔊 Voice of <span>TN</span></a>
+        <div class="nav-links">
+            <span style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="adminName"></span>
+            <a href="./c_admin_dashboard.html">Home</a>
+            <a href="./c_admin_dashboard.html">Dashboard</a>
+            <span
+                style="background:rgba(230,126,34,0.25);color:#F5CBA7;padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:700">DEPT
+                ADMIN</span>
+            <button class="btn-logout" onclick="adminLogout()">Logout</button>
+        </div>
+    </nav>
+    <div class="page-header">
+        <div class="container">
+            <h1>Department Admin Dashboard</h1>
+            <p>Review and update complaint statuses</p>
+        </div>
+    </div>
+    <div class="container section">
+        <div class="admin-stats fade-in" id="adminStats"></div>
+        <div class="card fade-in-delay-1" style="margin-bottom:24px">
+            <div class="filter-row">
+                <div class="fgroup">
+                    <label>Filter by Department</label>
+                    <select id="aDept" onchange="applyFilter()">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div class="fgroup">
+                    <label>Filter by Status</label>
+                    <select id="aStatus" onchange="applyFilter()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="under_investigation">Under Investigation</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="solved">Solved</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="adminList" class="fade-in-delay-2">
+            <div class="spinner"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal" style="display:none">
+        <div class="modal-card">
+            <h3>Update Complaint <span id="modalId"></span></h3>
+            <p style="color:var(--text-light);font-size:0.85rem;margin-bottom:16px" id="modalDesc"></p>
+            <div class="form-group">
+                <label>Update Status</label>
+                <select id="newStatus">
+                    <option value="resolved">Resolved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Message to Citizen</label>
+                <textarea id="adminMsg" placeholder="Citizen-க்கு message குடுங்க..." rows="3"></textarea>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="updateStatus()">Update</button>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">2026 Voice of TN - Department Admin</footer>
+    <script src="./js/config.js"></script>
+    <script src="./js/c_admin.js"></script>
+</body>
+
+</html>

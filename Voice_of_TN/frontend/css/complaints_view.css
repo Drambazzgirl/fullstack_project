@@ -1,0 +1,59 @@
+/* complaints_view.css */
+
+.cv-filters {
+    margin-bottom: 24px;
+    padding: 20px;
+}
+.filter-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.fgroup { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px; }
+.fgroup label { font-size: 0.82rem; font-weight: 600; color: var(--text-light); }
+.fgroup select {
+    padding: 9px 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.fgroup select:focus { border-color: var(--primary); }
+
+.cv-count {
+    color: var(--text-light);
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+}
+
+.cv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+}
+
+.cv-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+    transition: all 0.25s;
+    animation: fadeInUp 0.4s ease both;
+}
+.cv-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.cv-card.status-in_progress { border-left-color: #3498DB; }
+.cv-card.status-completed   { border-left-color: var(--success); }
+.cv-card.status-solved      { border-left-color: var(--solved); }
+
+.cv-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.cv-dept-tag { font-size: 0.75rem; background: rgba(11,83,69,0.1); color: var(--primary); padding: 3px 9px; border-radius: 20px; font-weight: 600; }
+.cv-id       { font-size: 0.75rem; color: var(--text-light); }
+.cv-sub      { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+.cv-desc     { font-size: 0.83rem; color: var(--text-light); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px; }
+.cv-footer   { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--text-light); flex-wrap: wrap; gap: 6px; }
+.cv-admin-msg { margin-top: 10px; padding: 8px 12px; background: rgba(142,68,173,0.08); border-radius: 6px; font-size: 0.82rem; color: #6C3483; }

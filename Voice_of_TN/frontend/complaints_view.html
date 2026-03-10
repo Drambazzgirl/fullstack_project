@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Complaints - Voice of TN</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/complaints_view.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="./index.html" class="logo">🔊 Voice of <span>TN</span></a>
+    <div class="nav-links" id="navLinks">
+        <a href="./index.html">Home</a>
+        <a href="./complaints_view.html" class="active">Complaints</a>
+        <a href="./profile.html" id="navDashboard" style="display:none">Dashboard</a>
+        <a href="./complaint.html" id="navRaise" style="display:none" class="btn btn-accent" style="padding:7px 14px">+ Raise</a>
+        <a href="./login.html" id="navLogin">Login</a>
+        <a href="./register.html" id="navRegister">Register</a>
+        <button class="btn-logout" id="navLogout" style="display:none" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h1>All Complaints</h1>
+        <p>Public complaints from citizens of Tamil Nadu</p>
+    </div>
+</div>
+
+<div class="container section">
+    <!-- Filters -->
+    <div class="cv-filters card fade-in">
+        <div class="filter-row">
+            <div class="fgroup">
+                <label>Department</label>
+                <select id="fDept" onchange="applyFilters()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="fgroup">
+                <label>Status</label>
+                <select id="fStatus" onchange="applyFilters()">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="solved">Solved</option>
+                </select>
+            </div>
+            <div class="fgroup">
+                <label>District</label>
+                <select id="fDistrict" onchange="applyFilters()">
+                    <option value="">All Districts</option>
+                </select>
+            </div>
+            <button class="btn btn-outline" onclick="clearFilters()">Clear</button>
+        </div>
+    </div>
+
+    <div class="cv-count fade-in-delay-1" id="cvCount"></div>
+    <div id="cvList" class="fade-in-delay-2"><div class="spinner"></div></div>
+</div>
+
+<footer class="footer">© 2026 Voice of TN</footer>
+
+<script src="./js/config.js"></script>
+<script src="./js/complaints_view.js"></script>
+</body>
+</html>

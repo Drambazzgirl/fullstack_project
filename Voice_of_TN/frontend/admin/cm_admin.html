@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CM Admin Dashboard - Voice of TN</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo" onclick="window.location.href='../index.html'">🔊 Voice of TN</div>
+    <div class="nav-links">
+        <span class="admin-role-badge cm">👑 CM_Admin</span>
+        <span id="adminName" style="color:var(--text-muted);font-size:0.9rem"></span>
+        <button onclick="adminLogout()" class="btn btn-outline" style="font-size:0.85rem">Logout</button>
+    </div>
+</nav>
+
+<div class="admin-container">
+    <h1 class="admin-title">👑 Chief Minister's Dashboard</h1>
+    <p class="admin-sub">Review completed complaints and mark them as officially solved</p>
+
+    <!-- STATS -->
+    <div class="admin-stats" id="adminStats">
+        <div class="astat"><span id="sTotal">--</span><small>Total</small></div>
+        <div class="astat pending"><span id="sPending">--</span><small>Pending</small></div>
+        <div class="astat progress"><span id="sProgress">--</span><small>In Progress</small></div>
+        <div class="astat completed"><span id="sCompleted">--</span><small>Completed</small></div>
+        <div class="astat solved"><span id="sSolved">--</span><small>Solved</small></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="admin-tabs">
+        <button class="tab-btn active" id="tab-all" onclick="switchTab('all')">All Complaints</button>
+        <button class="tab-btn" id="tab-completed" onclick="switchTab('completed')">Awaiting Resolution</button>
+        <button class="tab-btn" id="tab-solved" onclick="switchTab('solved')">Solved</button>
+    </div>
+
+    <div id="complaintsList" class="admin-list">
+        <div class="loading">Loading complaints...</div>
+    </div>
+</div>
+
+<!-- SOLVE MODAL -->
+<div class="modal-overlay" id="solveModal" style="display:none">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>✅ Mark as Solved — Complaint #<span id="modalId"></span></h3>
+            <button onclick="closeModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer">×</button>
+        </div>
+        <p id="modalDesc" style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.6"></p>
+        <div class="form-group">
+            <label>Official Resolution Message *</label>
+            <textarea id="solveMsg" rows="4" placeholder="Write the official resolution message for this complaint..."></textarea>
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:1rem">
+            <button class="btn btn-primary" onclick="markSolved()" style="background:var(--success)">✅ Mark as Solved</button>
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        </div>
+        <div class="success-msg" id="solveSuccess" style="margin-top:0.75rem;display:none"></div>
+        <input type="hidden" id="solveComplaintId">
+    </div>
+</div>
+
+<footer>© 2026 Voice of TN — CM_Admin Portal</footer>
+
+<script src="../js/config.js"></script>
+<script>
+    const adminToken = localStorage.getItem('admin_token');
+    const adminRole = localStorage.getItem('admin_role');
+    const adminUsername = localStorage.getItem('admin_username');
+
+    if (!adminToken || adminRole !== 'cm_admin') {
+        window.location.href = './admin_login.html';
+    }
+
+    document.getElementById('adminName').textContent = adminUsername || '';
+
+    let currentTab = 'all';
+
+    function adminLogout() {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_role');
+        localStorage.removeItem('admin_username');
+        window.location.href = './admin_login.html';
+    }
+
+    function adminAuthHeaders() {
+        return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` };
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        loadComplaints();
+    }
+
+    async function loadStats() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/dashboard`, { headers: adminAuthHeaders() });
+            const data = await res.json();
+            document.getElementById('sTotal').textContent = data.total;
+            document.getElementById('sPending').textContent = data.pending;
+            document.getElementById('sProgress').textContent = data.in_progress;
+            document.getElementById('sCompleted').textContent = data.completed;
+            document.getElementById('sSolved').textContent = data.solved;
+        } catch(e) {}
+    }
+
+    async function loadComplaints() {
+        const statusMap = { all: '', completed: 'completed', solved: 'solved' };
+        const status = statusMap[currentTab];
+
+        let url = `${API_BASE_URL}/api/admin/complaints?`;
+        if (status) url += `status=${status}`;
+
+        const container = document.getElementById('complaintsList');
+        container.innerHTML = '<div class="loading">Loading...</div>';
+
+        try {
+            const res = await fetch(url, { headers: adminAuthHeaders() });
+            const complaints = await res.json();
+
+            if (!complaints.length) {
+                container.innerHTML = '<div class="loading">No complaints found.</div>';
+                return;
+            }
+
+            container.innerHTML = complaints.map(c => {
+                const s = getStatusBadge(c.status);
+                const canSolve = c.status === 'completed';
+                return `
+                <div class="admin-card ${c.status === 'solved' ? 'solved-card' : ''}">
+                    <div class="ac-head">
+                        <div>
+                            <span class="ac-id">#${c.id}</span>
+                            <span class="ac-dept">${c.department}</span>
+                        </div>
+                        <span class="badge ${s.class}">${s.label}</span>
+                    </div>
+                    <div class="ac-info">
+                        <strong>${c.name}</strong> · ${c.district} · ${c.subcategory}
+                    </div>
+                    <p class="ac-desc">${c.description.substring(0, 180)}${c.description.length > 180 ? '...' : ''}</p>
+                    <div class="ac-meta">
+                        <span>Age: ${c.age} · ${c.gender}</span>
+                        <span>📅 ${formatDate(c.created_at)}</span>
+                        ${c.voice_file ? `<a href="${API_BASE_URL}${c.voice_file}" target="_blank" class="ac-link">🎤 Voice</a>` : ''}
+                        ${c.attachment ? `<a href="${API_BASE_URL}${c.attachment}" target="_blank" class="ac-link">📎 File</a>` : ''}
+                    </div>
+                    ${c.admin_message ? `<div class="ac-msg">💬 Admin: ${c.admin_message}</div>` : ''}
+                    ${canSolve ? `<button class="btn ac-update-btn" style="background:var(--success);color:white" onclick="openSolveModal(${c.id}, '${c.description.replace(/'/g,"\\'")}')">✅ Mark as Solved</button>` : ''}
+                    ${c.status === 'solved' ? `<div class="solved-badge">✅ Officially Solved</div>` : ''}
+                </div>`;
+            }).join('');
+        } catch(e) {
+            container.innerHTML = '<div class="loading">Failed to load.</div>';
+        }
+    }
+
+    function openSolveModal(id, desc) {
+        document.getElementById('solveComplaintId').value = id;
+        document.getElementById('modalId').textContent = id;
+        document.getElementById('modalDesc').textContent = desc;
+        document.getElementById('solveMsg').value = '';
+        document.getElementById('solveSuccess').style.display = 'none';
+        document.getElementById('solveModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('solveModal').style.display = 'none';
+    }
+
+    async function markSolved() {
+        const id = document.getElementById('solveComplaintId').value;
+        const admin_message = document.getElementById('solveMsg').value.trim();
+        const suc = document.getElementById('solveSuccess');
+
+        if (!admin_message) {
+            suc.textContent = '⚠️ Please write a resolution message';
+            suc.style.color = 'var(--accent)';
+            suc.style.display = 'block';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/complaints/${id}/status`, {
+                method: 'PUT',
+                headers: adminAuthHeaders(),
+                body: JSON.stringify({ status: 'solved', admin_message })
+            });
+
+            if (res.ok) {
+                suc.textContent = '✅ Complaint marked as solved!';
+                suc.style.color = 'var(--success-light)';
+                suc.style.display = 'block';
+                await loadStats();
+                await loadComplaints();
+                setTimeout(closeModal, 1500);
+            }
+        } catch(e) {
+            suc.textContent = '❌ Failed to update.';
+            suc.style.display = 'block';
+        }
+    }
+
+    loadStats();
+    loadComplaints();
+</script>
+</body>
+</html>

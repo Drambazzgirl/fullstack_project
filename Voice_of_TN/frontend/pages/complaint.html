@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File a Complaint - Voice of TN</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/complaint.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo" onclick="window.location.href='../index.html'">🔊 Voice of TN</div>
+    <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="./profile.html">Dashboard</a>
+        <button onclick="logout()" class="btn btn-outline" style="font-size:0.85rem">Logout</button>
+    </div>
+</nav>
+
+<div class="complaint-container">
+    <div class="complaint-header">
+        <h1>📣 File a Complaint</h1>
+        <p>Raise your voice — We'll make sure it reaches the right department.</p>
+    </div>
+
+    <div class="complaint-form">
+
+        <!-- STEP 1: Personal Info -->
+        <div class="form-section">
+            <div class="form-section-title"><span class="step-num">1</span> Personal Information</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="name" placeholder="Your name">
+                    <div class="error-msg" id="nameError"></div>
+                </div>
+                <div class="form-group">
+                    <label>District *</label>
+                    <select id="district">
+                        <option value="">Select District</option>
+                    </select>
+                    <div class="error-msg" id="districtError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Age *</label>
+                    <input type="number" id="age" placeholder="Your age" min="1" max="120">
+                    <div class="error-msg" id="ageError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Gender *</label>
+                    <select id="gender">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                    <div class="error-msg" id="genderError"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: Complaint Info -->
+        <div class="form-section">
+            <div class="form-section-title"><span class="step-num">2</span> Complaint Details</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Department *</label>
+                    <select id="department" onchange="updateSubcategories()">
+                        <option value="">Select Department</option>
+                    </select>
+                    <div class="error-msg" id="deptError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Sub-Category *</label>
+                    <select id="subcategory" disabled>
+                        <option value="">Select Department First</option>
+                    </select>
+                    <div class="error-msg" id="subcatError"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description *</label>
+                <textarea id="description" rows="5" placeholder="Describe your complaint in detail..."></textarea>
+                <div class="error-msg" id="descError"></div>
+            </div>
+            <div class="form-group">
+                <label>Complaint Date *</label>
+                <input type="date" id="complaintDate">
+                <div class="error-msg" id="dateError"></div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Attachments -->
+        <div class="form-section">
+            <div class="form-section-title"><span class="step-num">3</span> Attachments (Optional)</div>
+            
+            <!-- Voice Recording -->
+            <div class="voice-section">
+                <div class="voice-title">🎤 Voice Recording</div>
+                <p class="voice-sub">Record your complaint as audio (max 2 minutes)</p>
+                <div class="voice-controls">
+                    <button type="button" class="btn btn-secondary" id="recordBtn" onclick="toggleRecording()">🎙️ Start Recording</button>
+                    <button type="button" class="btn btn-outline" id="playBtn" onclick="playRecording()" style="display:none">▶️ Play</button>
+                    <button type="button" class="btn btn-danger" id="deleteVoiceBtn" onclick="deleteVoice()" style="display:none">🗑️ Delete</button>
+                    <span id="recordStatus" class="record-status"></span>
+                </div>
+                <audio id="voicePlayer" style="display:none;width:100%;margin-top:0.5rem"></audio>
+            </div>
+
+            <!-- File Upload -->
+            <div class="form-group" style="margin-top:1rem">
+                <label>📎 Attach File / PDF</label>
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="file-icon">📁</div>
+                    <div>Drag & drop or <label for="fileInput" style="color:var(--primary-light);cursor:pointer;font-weight:600">browse files</label></div>
+                    <div class="file-sub">Supports: Images, PDF, DOC (max 10MB)</div>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" style="display:none" onchange="handleFileSelect(this)">
+                </div>
+                <div id="filePreview" style="display:none" class="file-preview">
+                    <span id="fileName"></span>
+                    <button type="button" onclick="removeFile()" style="background:none;border:none;color:var(--primary-light);cursor:pointer;font-size:1.2rem">×</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="submit-section">
+            <div class="success-msg" id="successMsg"></div>
+            <div class="error-msg" id="submitError" style="font-size:0.9rem;text-align:center"></div>
+            <button class="btn btn-primary submit-btn" id="submitBtn" onclick="submitComplaint()">
+                📣 Submit Complaint
+            </button>
+        </div>
+    </div>
+</div>
+
+<footer>© 2026 Voice of TN — All Rights Reserved</footer>
+
+<script src="../js/config.js"></script>
+<script>
+    if (!isLoggedIn()) window.location.href = './login.html';
+
+    function logout() { localStorage.clear(); window.location.href = '../index.html'; }
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioBlob = null;
+    let audioUrl = null;
+    let recordingTimer = null;
+    let recordSeconds = 0;
+    let voiceFileUrl = null;
+    let attachmentUrl = null;
+    let selectedFile = null;
+
+    // Populate selects
+    function populateSelects() {
+        const distSel = document.getElementById('district');
+        DISTRICTS.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d; opt.textContent = d;
+            distSel.appendChild(opt);
+        });
+
+        const deptSel = document.getElementById('department');
+        DEPARTMENTS.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d; opt.textContent = d;
+            deptSel.appendChild(opt);
+        });
+
+        // Set today's date
+        document.getElementById('complaintDate').value = new Date().toISOString().split('T')[0];
+    }
+
+    function updateSubcategories() {
+        const dept = document.getElementById('department').value;
+        const subSel = document.getElementById('subcategory');
+        subSel.innerHTML = '<option value="">Select Subcategory</option>';
+        
+        if (dept && SUBCATEGORIES[dept]) {
+            SUBCATEGORIES[dept].forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s; opt.textContent = s;
+                subSel.appendChild(opt);
+            });
+            subSel.disabled = false;
+        } else {
+            subSel.disabled = true;
+        }
+    }
+
+    // Voice recording
+    async function toggleRecording() {
+        const btn = document.getElementById('recordBtn');
+        const status = document.getElementById('recordStatus');
+
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            clearInterval(recordingTimer);
+            btn.textContent = '🎙️ Start Recording';
+            btn.classList.remove('recording');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioChunks = [];
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                audioUrl = URL.createObjectURL(audioBlob);
+                const player = document.getElementById('voicePlayer');
+                player.src = audioUrl;
+                player.style.display = 'block';
+                document.getElementById('playBtn').style.display = 'inline-flex';
+                document.getElementById('deleteVoiceBtn').style.display = 'inline-flex';
+                status.textContent = '✅ Recording saved';
+                stream.getTracks().forEach(t => t.stop());
+            };
+
+            mediaRecorder.start();
+            btn.textContent = '⏹️ Stop Recording';
+            btn.classList.add('recording');
+            recordSeconds = 0;
+
+            recordingTimer = setInterval(() => {
+                recordSeconds++;
+                const m = Math.floor(recordSeconds / 60).toString().padStart(2, '0');
+                const s = (recordSeconds % 60).toString().padStart(2, '0');
+                status.textContent = `🔴 Recording... ${m}:${s}`;
+                if (recordSeconds >= 120) {
+                    mediaRecorder.stop();
+                    clearInterval(recordingTimer);
+                    btn.textContent = '🎙️ Start Recording';
+                    btn.classList.remove('recording');
+                }
+            }, 1000);
+
+        } catch(e) {
+            status.textContent = '❌ Microphone access denied';
+        }
+    }
+
+    function playRecording() {
+        document.getElementById('voicePlayer').play();
+    }
+
+    function deleteVoice() {
+        audioBlob = null;
+        audioUrl = null;
+        voiceFileUrl = null;
+        document.getElementById('voicePlayer').style.display = 'none';
+        document.getElementById('playBtn').style.display = 'none';
+        document.getElementById('deleteVoiceBtn').style.display = 'none';
+        document.getElementById('recordStatus').textContent = '';
+    }
+
+    // File upload
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+        selectedFile = file;
+        document.getElementById('fileName').textContent = `📎 ${file.name}`;
+        document.getElementById('filePreview').style.display = 'flex';
+        document.getElementById('fileUploadArea').style.display = 'none';
+    }
+
+    function removeFile() {
+        selectedFile = null;
+        attachmentUrl = null;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('fileUploadArea').style.display = 'flex';
+    }
+
+    // Drag and drop
+    const dropArea = document.getElementById('fileUploadArea');
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('drag-over'); });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
+    dropArea.addEventListener('drop', e => {
+        e.preventDefault();
+        dropArea.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) { selectedFile = file; document.getElementById('fileName').textContent = `📎 ${file.name}`; document.getElementById('filePreview').style.display = 'flex'; dropArea.style.display = 'none'; }
+    });
+
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    function clearErrors() {
+        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+    }
+
+    async function uploadFileToServer(file, endpoint) {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${getToken()}` },
+            body: form
+        });
+        const data = await res.json();
+        return data.file_url;
+    }
+
+    async function submitComplaint() {
+        clearErrors();
+        document.getElementById('successMsg').style.display = 'none';
+
+        const name = document.getElementById('name').value.trim();
+        const district = document.getElementById('district').value;
+        const age = document.getElementById('age').value;
+        const gender = document.getElementById('gender').value;
+        const department = document.getElementById('department').value;
+        const subcategory = document.getElementById('subcategory').value;
+        const description = document.getElementById('description').value.trim();
+        const complaint_date = document.getElementById('complaintDate').value;
+
+        let hasError = false;
+        if (!name) { showError('nameError', 'Name is required'); hasError = true; }
+        if (!district) { showError('districtError', 'Select your district'); hasError = true; }
+        if (!age || age < 1) { showError('ageError', 'Enter valid age'); hasError = true; }
+        if (!gender) { showError('genderError', 'Select gender'); hasError = true; }
+        if (!department) { showError('deptError', 'Select a department'); hasError = true; }
+        if (!subcategory) { showError('subcatError', 'Select a subcategory'); hasError = true; }
+        if (description.length < 10) { showError('descError', 'Description must be at least 10 characters'); hasError = true; }
+        if (!complaint_date) { showError('dateError', 'Select complaint date'); hasError = true; }
+        if (hasError) return;
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        try {
+            // Upload voice if exists
+            if (audioBlob && !voiceFileUrl) {
+                const voiceFile = new File([audioBlob], 'voice.webm', { type: 'audio/webm' });
+                voiceFileUrl = await uploadFileToServer(voiceFile, '/api/complaints/upload-file');
+            }
+
+            // Upload attachment if exists
+            if (selectedFile && !attachmentUrl) {
+                attachmentUrl = await uploadFileToServer(selectedFile, '/api/complaints/upload-file');
+            }
+
+            const payload = {
+                name, district, age: parseInt(age), gender,
+                department, subcategory, description, complaint_date,
+                voice_file: voiceFileUrl || null,
+                attachment: attachmentUrl || null
+            };
+
+            const res = await fetch(`${API_BASE_URL}/api/complaints/`, {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const suc = document.getElementById('successMsg');
+                suc.textContent = '✅ Complaint filed successfully! Redirecting to your profile...';
+                suc.style.display = 'block';
+                setTimeout(() => window.location.href = './profile.html', 2000);
+            } else {
+                const err = await res.json();
+                document.getElementById('submitError').textContent = err.detail || 'Submission failed';
+                document.getElementById('submitError').style.display = 'block';
+            }
+
+        } catch(e) {
+            document.getElementById('submitError').textContent = 'Network error. Please try again.';
+            document.getElementById('submitError').style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📣 Submit Complaint';
+        }
+    }
+
+    populateSelects();
+</script>
+</body>
+</html>

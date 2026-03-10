@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raise Complaint - Voice of TN</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/complaint.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="./index.html" class="logo">🔊 Voice of <span>TN</span></a>
+        <div class="nav-links">
+            <a href="./index.html">Home</a>
+            <a href="./complaints_view.html">Complaints</a>
+            <a href="./profile.html">Dashboard</a>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Raise a Complaint</h1>
+            <p>Submit your grievance to the concerned department</p>
+        </div>
+    </div>
+
+    <div class="container section">
+        <div class="complaint-form-card fade-in">
+
+            <div class="success-msg" id="successMsg"></div>
+            <div class="error-global" id="errorMsg" style="display:none"></div>
+
+            <!-- Personal Info -->
+            <div class="form-section">
+                <h3>Personal Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="citizen_name" placeholder="Your full name">
+                        <div class="error-msg" id="nameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Age *</label>
+                        <input type="number" id="age" placeholder="Your age" min="1" max="120">
+                        <div class="error-msg" id="ageError"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>District *</label>
+                    <select id="district">
+                        <option value="">-- Select District --</option>
+                    </select>
+                    <div class="error-msg" id="districtError"></div>
+                </div>
+            </div>
+
+            <!-- Complaint Info -->
+            <div class="form-section">
+                <h3>Complaint Details</h3>
+                <div class="form-group">
+                    <label>Department *</label>
+                    <select id="department" onchange="updateSubcategories()">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <div class="error-msg" id="deptError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Subcategory *</label>
+                    <select id="subcategory">
+                        <option value="">-- Select Subcategory --</option>
+                    </select>
+                    <div class="error-msg" id="subError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="description" placeholder="Describe your issue in detail..." rows="5"></textarea>
+                    <div class="error-msg" id="descError"></div>
+                </div>
+            </div>
+
+            <!-- Voice Recording -->
+            <div class="form-section">
+                <h3>Voice Message (Optional)</h3>
+                <p class="form-hint">Record your complaint in your own words</p>
+                <div class="voice-recorder">
+                    <button class="btn btn-outline" id="recordBtn" onclick="toggleRecording()">
+                        Start Recording
+                    </button>
+                    <span id="recordStatus" class="record-status"></span>
+                    <audio id="audioPlayer" controls style="display:none; margin-top:10px; width:100%"></audio>
+                </div>
+            </div>
+
+            <!-- Proof Document Upload ← உள்ளே இருக்கு இப்போ ✅ -->
+            <div class="form-section">
+                <h3>📎 Proof Document (Optional)</h3>
+                <div class="form-group">
+                    <input type="file" id="proofDoc" accept=".pdf,.jpg,.jpeg,.png"
+                        style="padding:12px;border:2px dashed var(--border);border-radius:8px;
+                        width:100%;cursor:pointer;background:#fafafa;font-family:'Nunito',sans-serif">
+                    <small style="color:var(--text-light);font-size:0.78rem">
+                        📄 PDF, JPG, PNG — Max 5MB
+                    </small>
+                </div>
+            </div>
+
+            <button class="btn btn-accent" id="submitBtn" onclick="submitComplaint()"
+                style="width:100%; padding:14px; font-size:1rem; margin-top:10px">
+                Submit Complaint
+            </button>
+
+        </div>
+    </div>
+
+    <footer class="footer">© 2026 Voice of TN</footer>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/complaint.js"></script>
+</body>
+
+</html>

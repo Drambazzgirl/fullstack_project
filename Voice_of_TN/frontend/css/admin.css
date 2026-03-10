@@ -1,0 +1,126 @@
+/* admin.css - Admin dashboard styles */
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.astat {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--primary);
+}
+.astat.warning { border-top-color: var(--warning); }
+.astat.info    { border-top-color: var(--info); }
+.astat.success { border-top-color: var(--success); }
+.astat.solved  { border-top-color: var(--solved); }
+
+.astat .anum {
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+.astat .alabel { font-size: 0.78rem; color: var(--text-light); }
+
+/* Filter row */
+.filter-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.fgroup { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px; }
+.fgroup label { font-size: 0.82rem; font-weight: 600; color: var(--text-light); }
+.fgroup select {
+    padding: 9px 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.fgroup select:focus { border-color: var(--primary); }
+
+/* Admin Complaint List */
+.admin-complaint-item {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--warning);
+    animation: fadeInUp 0.4s ease both;
+}
+.admin-complaint-item.status-in_progress { border-left-color: var(--info); }
+.admin-complaint-item.status-completed   { border-left-color: var(--success); }
+.admin-complaint-item.status-solved      { border-left-color: var(--solved); }
+
+.aci-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.aci-left { display: flex; flex-direction: column; gap: 4px; }
+.aci-dept { font-size: 0.78rem; background: rgba(11,83,69,0.1); color: var(--primary); padding: 3px 9px; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 4px; }
+.aci-name { font-weight: 700; font-size: 1rem; }
+.aci-meta { font-size: 0.8rem; color: var(--text-light); }
+.aci-right { display: flex; align-items: center; gap: 10px; }
+
+.aci-desc {
+    font-size: 0.88rem;
+    color: var(--text-light);
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 6px;
+    line-height: 1.6;
+}
+
+.aci-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.aci-info { font-size: 0.78rem; color: var(--text-light); display: flex; gap: 14px; flex-wrap: wrap; }
+.aci-admin-msg { font-size: 0.82rem; color: #6C3483; margin-top: 8px; padding: 8px 12px; background: rgba(142,68,173,0.08); border-radius: 6px; }
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+}
+.modal-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.3s ease;
+}
+.modal-card h3 { font-size: 1.3rem; margin-bottom: 6px; }
+.modal-btns { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; }
+
+@media (max-width: 600px) {
+    .aci-header { flex-direction: column; }
+    .aci-right  { justify-content: flex-start; }
+}

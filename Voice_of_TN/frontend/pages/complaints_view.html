@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Complaints - Voice of TN</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/complaints_view.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo" onclick="window.location.href='../index.html'">🔊 Voice of TN</div>
+    <div class="nav-links" id="navLinks">
+        <a href="../index.html">Home</a>
+        <a href="./complaint.html" id="fileBtn" style="display:none" class="btn btn-nav btn">File Complaint</a>
+        <a href="./profile.html" id="dashboardBtn" style="display:none">Dashboard</a>
+        <a href="./login.html" id="loginBtn">Login</a>
+    </div>
+</nav>
+
+<div class="view-container">
+    <div class="view-header">
+        <h1>📋 All Complaints</h1>
+        <p>Complaints filed by citizens of Tamil Nadu</p>
+    </div>
+
+    <div class="filters-panel">
+        <select id="filterDept" onchange="loadComplaints()">
+            <option value="">All Departments</option>
+        </select>
+        <select id="filterDistrict" onchange="loadComplaints()">
+            <option value="">All Districts</option>
+        </select>
+        <select id="filterStatus" onchange="loadComplaints()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="solved">Solved</option>
+        </select>
+        <button class="btn btn-outline" onclick="resetFilters()">Reset</button>
+    </div>
+
+    <div id="statsBar" class="stats-bar">
+        <span id="totalCount">Loading...</span>
+    </div>
+
+    <div id="complaintsList" class="complaints-list">
+        <div class="loading">Loading complaints...</div>
+    </div>
+</div>
+
+<footer>© 2026 Voice of TN — All Rights Reserved</footer>
+
+<script src="../js/config.js"></script>
+<script>
+    function setupNav() {
+        if (isLoggedIn()) {
+            document.getElementById('fileBtn').style.display = 'flex';
+            document.getElementById('dashboardBtn').style.display = 'block';
+            document.getElementById('loginBtn').style.display = 'none';
+        }
+    }
+
+    function populateFilters() {
+        const deptSel = document.getElementById('filterDept');
+        DEPARTMENTS.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d; opt.textContent = d;
+            deptSel.appendChild(opt);
+        });
+        const distSel = document.getElementById('filterDistrict');
+        DISTRICTS.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d; opt.textContent = d;
+            distSel.appendChild(opt);
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById('filterDept').value = '';
+        document.getElementById('filterDistrict').value = '';
+        document.getElementById('filterStatus').value = '';
+        loadComplaints();
+    }
+
+    async function loadComplaints() {
+        const dept = document.getElementById('filterDept').value;
+        const district = document.getElementById('filterDistrict').value;
+        const status = document.getElementById('filterStatus').value;
+
+        let url = `${API_BASE_URL}/api/complaints/?limit=100`;
+        if (dept) url += `&department=${encodeURIComponent(dept)}`;
+        if (district) url += `&district=${encodeURIComponent(district)}`;
+        if (status) url += `&status=${status}`;
+
+        const container = document.getElementById('complaintsList');
+        container.innerHTML = '<div class="loading">Loading...</div>';
+
+        try {
+            const res = await fetch(url);
+            const complaints = await res.json();
+            document.getElementById('statsBar').innerHTML = `<span>Showing <strong>${complaints.length}</strong> complaints</span>`;
+
+            if (!complaints.length) {
+                container.innerHTML = '<div class="loading">No complaints found.</div>';
+                return;
+            }
+
+            container.innerHTML = complaints.map(c => {
+                const s = getStatusBadge(c.status);
+                return `
+                <div class="cv-card animate-fadeup">
+                    <div class="cv-left">
+                        <div class="cv-id">#${c.id}</div>
+                        <div class="cv-date">${formatDate(c.created_at)}</div>
+                    </div>
+                    <div class="cv-body">
+                        <div class="cv-top">
+                            <div class="cv-dept">${c.department}</div>
+                            <span class="badge ${s.class}">${s.label}</span>
+                        </div>
+                        <div class="cv-name">${c.name} · ${c.district} · ${c.gender} · Age ${c.age}</div>
+                        <div class="cv-sub">📁 ${c.subcategory}</div>
+                        <p class="cv-desc">${c.description.substring(0, 200)}${c.description.length > 200 ? '...' : ''}</p>
+                        <div class="cv-attachments">
+                            ${c.voice_file ? `<a href="${API_BASE_URL}${c.voice_file}" target="_blank" class="attach-link">🎤 Voice</a>` : ''}
+                            ${c.attachment ? `<a href="${API_BASE_URL}${c.attachment}" target="_blank" class="attach-link">📎 File</a>` : ''}
+                        </div>
+                        ${c.admin_message ? `<div class="cv-admin">💬 Admin Response: ${c.admin_message}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        } catch(e) {
+            container.innerHTML = '<div class="loading">Failed to load. Is backend running?</div>';
+        }
+    }
+
+    setupNav();
+    populateFilters();
+    loadComplaints();
+</script>
+</body>
+</html>

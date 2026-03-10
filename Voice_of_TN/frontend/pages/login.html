@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Voice of TN</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo" onclick="window.location.href='../index.html'">🔊 Voice of TN</div>
+    <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="./register.html">Register</a>
+    </div>
+</nav>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">🔐</div>
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-sub">Login to your Voice of TN account</p>
+
+        <div class="success-msg" id="successMsg"></div>
+        <div class="error-msg" id="loginError" style="display:none;text-align:center;margin-bottom:1rem;font-size:0.9rem"></div>
+
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+
+        <button class="btn btn-primary" id="submitBtn" onclick="handleLogin()" style="width:100%;justify-content:center;margin-top:0.5rem">
+            Login
+        </button>
+
+        <p class="auth-footer">Don't have an account? <a href="./register.html">Register here</a></p>
+    </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script>
+    if (isLoggedIn()) window.location.href = '../index.html';
+
+    async function handleLogin() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const errEl = document.getElementById('loginError');
+        errEl.style.display = 'none';
+
+        if (!email || !password) {
+            errEl.textContent = 'Please enter email and password';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Logging in...';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/login/json`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                errEl.textContent = err.detail || 'Invalid email or password';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            const data = await res.json();
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('token_type', data.token_type);
+            localStorage.setItem('user_email', data.user_email);
+            localStorage.setItem('role', data.role || 'citizen');
+
+            const suc = document.getElementById('successMsg');
+            suc.textContent = '✅ Login successful! Redirecting...';
+            suc.style.display = 'block';
+
+            setTimeout(() => window.location.href = '../index.html', 800);
+
+        } catch(e) {
+            errEl.textContent = 'Network error. Is the backend running?';
+            errEl.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Login';
+        }
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+</body>
+</html>

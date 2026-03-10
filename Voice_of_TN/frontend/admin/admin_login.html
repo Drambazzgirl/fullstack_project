@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Voice of TN</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <style>
+        .role-selector { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+        .role-btn {
+            flex: 1; padding: 0.75rem; border-radius: var(--radius);
+            border: 1.5px solid var(--border); background: var(--bg-card2);
+            color: var(--text-muted); cursor: pointer; text-align: center;
+            font-family: 'DM Sans', sans-serif; font-weight: 600; transition: all 0.2s;
+        }
+        .role-btn.active { border-color: var(--primary); color: var(--primary-light); background: rgba(198,40,40,0.1); }
+        .admin-badge { text-align: center; margin-bottom: 1rem; }
+        .admin-icon { font-size: 3rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo" onclick="window.location.href='../index.html'">🔊 Voice of TN</div>
+    <div class="nav-links"><a href="../index.html">← Back to Home</a></div>
+</nav>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="admin-badge"><div class="admin-icon">🛡️</div></div>
+        <h2 class="auth-title">Admin Portal</h2>
+        <p class="auth-sub">Voice of TN — Official Admin Access</p>
+
+        <div class="role-selector">
+            <button class="role-btn active" id="roleC" onclick="selectRole('c_admin')">🏢 C_Admin</button>
+            <button class="role-btn" id="roleCM" onclick="selectRole('cm_admin')">👑 CM_Admin</button>
+        </div>
+
+        <div class="error-msg" id="loginError" style="display:none;text-align:center;margin-bottom:1rem;font-size:0.9rem"></div>
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Admin username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Admin password">
+        </div>
+
+        <button class="btn btn-primary" onclick="adminLogin()" style="width:100%;justify-content:center;margin-top:0.5rem">
+            🔐 Admin Login
+        </button>
+
+        <p style="text-align:center;margin-top:1rem;font-size:0.78rem;color:var(--text-muted)">
+            Restricted Access — Authorized Personnel Only
+        </p>
+    </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script>
+    let selectedRole = 'c_admin';
+
+    function selectRole(role) {
+        selectedRole = role;
+        document.getElementById('roleC').classList.toggle('active', role === 'c_admin');
+        document.getElementById('roleCM').classList.toggle('active', role === 'cm_admin');
+    }
+
+    async function adminLogin() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errEl = document.getElementById('loginError');
+        errEl.style.display = 'none';
+
+        if (!username || !password) {
+            errEl.textContent = 'Enter username and password';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role: selectedRole })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                errEl.textContent = err.detail || 'Invalid credentials';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            const data = await res.json();
+            localStorage.setItem('admin_token', data.access_token);
+            localStorage.setItem('admin_role', data.role);
+            localStorage.setItem('admin_username', data.username);
+
+            if (data.role === 'cm_admin') {
+                window.location.href = './cm_admin.html';
+            } else {
+                window.location.href = './c_admin.html';
+            }
+        } catch(e) {
+            errEl.textContent = 'Network error. Is backend running?';
+            errEl.style.display = 'block';
+        }
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+</script>
+</body>
+</html>

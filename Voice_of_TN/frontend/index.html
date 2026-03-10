@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice of TN - Citizen Complaint Portal</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="./index.html" class="logo">🔊 Voice of <span>TN</span></a>
+    <div class="nav-links" id="navLinks">
+        <a href="./index.html" class="active">Home</a>
+        <a href="./complaints_view.html">Complaints</a>
+        <!-- Shown only when logged in -->
+        <a href="./profile.html" id="navDashboard" style="display:none">Dashboard</a>
+        <a href="./complaint.html" id="navRaise" style="display:none" class="btn btn-accent" style="padding:7px 14px">Raise Complaint</a>
+        <!-- Shown only when NOT logged in -->
+        <a href="./login.html" id="navLogin">Login</a>
+        <a href="./register.html" id="navRegister">Register</a>
+        <button class="btn-logout" id="navLogout" style="display:none" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="hero-content fade-in">
+        <div class="hero-badge">🏛️ Tamil Nadu Government Portal</div>
+        <h1>Your Voice Matters.<br><span>We Listen.</span></h1>
+        <p>Raise complaints directly to the concerned departments of Tamil Nadu. Track progress and get resolution.</p>
+        <div class="hero-buttons">
+            <a href="./complaint.html" class="btn btn-accent" id="heroRaiseBtn">📝 Raise a Complaint</a>
+            <a href="./complaints_view.html" class="btn btn-outline-white">👁️ View All Complaints</a>
+        </div>
+    </div>
+    <div class="hero-stats fade-in-delay-1" id="heroStats">
+        <div class="stat-box"><span id="totalCount">...</span><label>Total Complaints</label></div>
+        <div class="stat-box"><span id="pendingCount">...</span><label>Pending</label></div>
+        <div class="stat-box"><span id="solvedCount">...</span><label>Solved</label></div>
+    </div>
+</section>
+
+<!-- DEPARTMENTS SECTION -->
+<section class="section container fade-in-delay-2">
+    <h2 class="section-title">Departments</h2>
+    <p class="section-sub">Select a department to view or raise complaints</p>
+    <div class="dept-grid" id="deptGrid"></div>
+</section>
+
+<!-- RECENT COMPLAINTS -->
+<section class="section container fade-in-delay-3">
+    <div class="section-header">
+        <h2 class="section-title">Recent Complaints</h2>
+        <div class="filter-bar">
+            <select id="filterDept" onchange="filterComplaints()">
+                <option value="">All Departments</option>
+            </select>
+            <select id="filterStatus" onchange="filterComplaints()">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="solved">Solved</option>
+            </select>
+            <select id="filterDistrict" onchange="filterComplaints()">
+                <option value="">All Districts</option>
+            </select>
+        </div>
+    </div>
+    <div id="complaintsContainer"><div class="spinner"></div></div>
+</section>
+
+<footer class="footer">
+    © 2026 Voice of TN — Empowering Citizens of Tamil Nadu | Districts: Chennai, Chengalpattu, Kanchipuram & more
+</footer>
+
+<script src="./js/config.js"></script>
+<script src="./js/home.js"></script>
+</body>
+</html>

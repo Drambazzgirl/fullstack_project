@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Voice of TN</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/profile.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="./index.html" class="logo">🔊 Voice of <span>TN</span></a>
+        <div class="nav-links">
+            <a href="./index.html">Home</a>
+            <a href="./complaints_view.html">Complaints</a>
+            <a href="./complaint.html" class="btn btn-accent" style="padding:7px 14px">+ Raise Complaint</a>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>My Dashboard</h1>
+            <p>Manage your profile and track your complaints</p>
+        </div>
+    </div>
+
+    <div class="container section">
+        <div class="profile-grid">
+
+            <!-- Left: Profile Card -->
+            <div class="profile-left">
+
+                <!-- Profile Picture -->
+                <div class="card profile-pic-card fade-in">
+                    <div class="pic-wrapper">
+                        <img src="" id="profileImg" alt="Profile"
+                            onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%230B5345%22/><text x=%2250%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2248%22 fill=%22white%22>👤</text></svg>'">
+                        <label class="pic-edit-btn" for="picInput" title="Change photo">✏️</label>
+                        <input type="file" id="picInput" accept="image/*" style="display:none"
+                            onchange="uploadPic(this)">
+                    </div>
+                    <h3 id="profileName">Loading...</h3>
+                    <p id="profileEmail" class="profile-email"></p>
+                    <span class="role-badge">Citizen</span>
+                </div>
+
+                <!-- Edit Profile -->
+                <div class="card fade-in-delay-1" style="margin-top:16px">
+                    <h3 class="card-title">Edit Profile</h3>
+                    <div class="success-msg" id="editSuccess"></div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="editName" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="editPhone" placeholder="Mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="editAge" placeholder="Age" min="1" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>District</label>
+                        <select id="editDistrict">
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveProfile()" style="width:100%">Save Changes</button>
+                </div>
+            </div>
+
+            <!-- Right: My Complaints -->
+            <div class="profile-right fade-in-delay-2">
+                <div class="complaints-header">
+                    <h2>My Complaint Ledger</h2>
+                    <a href="./complaint.html" class="btn btn-accent">+ New Complaint</a>
+                </div>
+
+                <div class="complaint-stats" id="myStats"></div>
+                <div id="myComplaints">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Edit Complaint Modal -->
+    <div class="modal-overlay" id="editModal" style="display:none">
+        <div class="modal-card">
+            <h3>Edit Complaint</h3>
+            <input type="hidden" id="editComplaintId">
+            <div class="form-group">
+                <label>Subcategory</label>
+                <input type="text" id="editSubcategory">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editDescription" rows="4"></textarea>
+            </div>
+            <div class="modal-btns" style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end">
+                <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">© 2026 Voice of TN</footer>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/profile.js"></script>
+</body>
+
+</html>

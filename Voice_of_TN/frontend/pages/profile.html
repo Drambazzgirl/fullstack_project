@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Voice of TN</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo" onclick="window.location.href='../index.html'">🔊 Voice of TN</div>
+    <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="./complaint.html" class="btn btn-nav btn">File Complaint</a>
+        <a href="./complaints_view.html">View All</a>
+        <button onclick="logout()" class="btn btn-outline" style="font-size:0.85rem">Logout</button>
+    </div>
+</nav>
+
+<div class="profile-container">
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+        <div class="profile-pic-wrap">
+            <img id="profilePic" src="https://ui-avatars.com/api/?background=C62828&color=fff&size=128&name=User" alt="Profile" class="profile-pic">
+            <label for="picUpload" class="pic-edit-btn" title="Change photo">✏️</label>
+            <input type="file" id="picUpload" accept="image/*" style="display:none" onchange="uploadProfilePic(this)">
+        </div>
+        <div class="profile-info">
+            <h2 id="profileName">Loading...</h2>
+            <p id="profileEmail" class="profile-email"></p>
+            <p id="profilePhone" class="profile-phone"></p>
+            <div class="profile-badge">🏛️ Citizen</div>
+        </div>
+        <button class="btn btn-outline" onclick="toggleEdit()" id="editBtn">✏️ Edit Profile</button>
+    </div>
+
+    <!-- EDIT FORM -->
+    <div class="edit-section" id="editSection" style="display:none">
+        <div class="card">
+            <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;margin-bottom:1.2rem">Edit Profile</h3>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editName" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="editPhone" placeholder="10 digit number">
+                </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+                <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+                <button class="btn btn-outline" onclick="toggleEdit()">Cancel</button>
+            </div>
+            <div class="success-msg" id="editSuccess" style="margin-top:0.75rem"></div>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="profile-stats" id="profileStats">
+        <div class="pstat"><span id="pstatTotal">0</span><small>Total</small></div>
+        <div class="pstat"><span id="pstatPending" class="col-pending">0</span><small>Pending</small></div>
+        <div class="pstat"><span id="pstatProgress" class="col-progress">0</span><small>In Progress</small></div>
+        <div class="pstat"><span id="pstatSolved" class="col-solved">0</span><small>Solved</small></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- MY COMPLAINTS -->
+    <div class="my-complaints">
+        <div class="mc-header">
+            <h3>📋 My Complaint Ledger</h3>
+            <a href="./complaint.html" class="btn btn-primary" style="font-size:0.875rem;padding:0.5rem 1rem">+ New Complaint</a>
+        </div>
+
+        <div id="myComplaints" class="complaints-ledger">
+            <div class="loading">Loading your complaints...</div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT COMPLAINT MODAL -->
+<div class="modal-overlay" id="editModal" style="display:none">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Edit Complaint</h3>
+            <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer">×</button>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="editDesc" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="editDate">
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:1rem">
+            <button class="btn btn-primary" onclick="saveComplaintEdit()">Save</button>
+            <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+        </div>
+        <input type="hidden" id="editComplaintId">
+    </div>
+</div>
+
+<footer>© 2026 Voice of TN — All Rights Reserved</footer>
+
+<script src="../js/config.js"></script>
+<script>
+    if (!isLoggedIn()) window.location.href = './login.html';
+
+    let userData = null;
+    let myComplaintsData = [];
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '../index.html';
+    }
+
+    async function loadProfile() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                headers: authHeaders()
+            });
+            if (!res.ok) { logout(); return; }
+            userData = await res.json();
+
+            document.getElementById('profileName').textContent = userData.name;
+            document.getElementById('profileEmail').textContent = '📧 ' + userData.email;
+            document.getElementById('profilePhone').textContent = '📱 ' + userData.phone;
+            document.getElementById('editName').value = userData.name;
+            document.getElementById('editPhone').value = userData.phone;
+
+            if (userData.profile_pic) {
+                document.getElementById('profilePic').src = API_BASE_URL + userData.profile_pic;
+            } else {
+                document.getElementById('profilePic').src = `https://ui-avatars.com/api/?background=C62828&color=fff&size=128&name=${encodeURIComponent(userData.name)}`;
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    async function loadMyComplaints() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/complaints/my`, {
+                headers: authHeaders()
+            });
+            myComplaintsData = await res.json();
+
+            // Stats
+            document.getElementById('pstatTotal').textContent = myComplaintsData.length;
+            document.getElementById('pstatPending').textContent = myComplaintsData.filter(c => c.status === 'pending').length;
+            document.getElementById('pstatProgress').textContent = myComplaintsData.filter(c => c.status === 'in_progress').length;
+            document.getElementById('pstatSolved').textContent = myComplaintsData.filter(c => c.status === 'solved').length;
+
+            const container = document.getElementById('myComplaints');
+            if (!myComplaintsData.length) {
+                container.innerHTML = '<div class="loading">No complaints yet. <a href="./complaint.html" style="color:var(--primary-light)">File your first one!</a></div>';
+                return;
+            }
+
+            container.innerHTML = myComplaintsData.map(c => {
+                const s = getStatusBadge(c.status);
+                const canEdit = c.status === 'pending';
+                return `
+                <div class="ledger-card">
+                    <div class="lc-top">
+                        <div>
+                            <span class="lc-dept">${c.department.split(' ')[0]}</span>
+                            <span class="lc-sub"> › ${c.subcategory}</span>
+                        </div>
+                        <span class="badge ${s.class}">${s.label}</span>
+                    </div>
+                    <p class="lc-desc">${c.description.substring(0, 150)}${c.description.length > 150 ? '...' : ''}</p>
+                    <div class="lc-meta">
+                        <span>📍 ${c.district}</span>
+                        <span>📅 ${formatDate(c.created_at)}</span>
+                        ${c.voice_file ? '<span>🎤 Voice</span>' : ''}
+                        ${c.attachment ? '<span>📎 File</span>' : ''}
+                    </div>
+                    ${c.admin_message ? `<div class="lc-admin-msg">💬 Admin: ${c.admin_message}</div>` : ''}
+                    ${canEdit ? `
+                    <div class="lc-actions">
+                        <button class="btn btn-outline" style="font-size:0.8rem;padding:0.4rem 0.8rem" onclick="openEditModal(${c.id}, '${c.description.replace(/'/g,"\\'")}', '${c.complaint_date}')">✏️ Edit</button>
+                        <button class="btn btn-danger" style="font-size:0.8rem;padding:0.4rem 0.8rem" onclick="deleteComplaint(${c.id})">🗑️ Delete</button>
+                    </div>` : ''}
+                </div>`;
+            }).join('');
+        } catch(e) {
+            document.getElementById('myComplaints').innerHTML = '<div class="loading">Failed to load complaints.</div>';
+        }
+    }
+
+    function toggleEdit() {
+        const sec = document.getElementById('editSection');
+        sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function saveProfile() {
+        const name = document.getElementById('editName').value.trim();
+        const phone = document.getElementById('editPhone').value.trim();
+        const suc = document.getElementById('editSuccess');
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                method: 'PUT',
+                headers: authHeaders(),
+                body: JSON.stringify({ name, phone })
+            });
+
+            if (res.ok) {
+                suc.textContent = '✅ Profile updated successfully!';
+                suc.style.display = 'block';
+                await loadProfile();
+                setTimeout(() => { suc.style.display = 'none'; toggleEdit(); }, 1500);
+            }
+        } catch(e) {
+            suc.textContent = '❌ Update failed.';
+            suc.style.display = 'block';
+        }
+    }
+
+    async function uploadProfilePic(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const form = new FormData();
+        form.append('file', file);
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/upload-profile-picture`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getToken()}` },
+                body: form
+            });
+            const data = await res.json();
+            document.getElementById('profilePic').src = API_BASE_URL + data.profile_pic;
+            showToast('Profile picture updated!');
+        } catch(e) {
+            showToast('Upload failed', 'error');
+        }
+    }
+
+    function openEditModal(id, desc, date) {
+        document.getElementById('editComplaintId').value = id;
+        document.getElementById('editDesc').value = desc;
+        document.getElementById('editDate').value = date;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function saveComplaintEdit() {
+        const id = document.getElementById('editComplaintId').value;
+        const description = document.getElementById('editDesc').value;
+        const complaint_date = document.getElementById('editDate').value;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/complaints/${id}`, {
+                method: 'PUT',
+                headers: authHeaders(),
+                body: JSON.stringify({ description, complaint_date })
+            });
+            if (res.ok) {
+                closeEditModal();
+                showToast('Complaint updated!');
+                loadMyComplaints();
+            }
+        } catch(e) {
+            showToast('Update failed', 'error');
+        }
+    }
+
+    async function deleteComplaint(id) {
+        if (!confirm('Delete this complaint?')) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/complaints/${id}`, {
+                method: 'DELETE',
+                headers: authHeaders()
+            });
+            if (res.ok) {
+                showToast('Complaint deleted');
+                loadMyComplaints();
+            }
+        } catch(e) {
+            showToast('Delete failed', 'error');
+        }
+    }
+
+    function showToast(msg, type='success') {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    loadProfile();
+    loadMyComplaints();
+</script>
+</body>
+</html>
