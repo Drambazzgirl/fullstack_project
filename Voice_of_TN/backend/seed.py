@@ -22,7 +22,7 @@ def create_admin(name, username, password, role):
     )
     db.add(admin)
     db.commit()
-    print(f"✅ Created {role}: username={username}, password={password}")
+    print(f"Created {role}: username={username}, password={password}")
 
 # Department Admin
 create_admin(

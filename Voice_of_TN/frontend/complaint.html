@@ -18,6 +18,7 @@
             <a href="./index.html">Home</a>
             <a href="./complaints_view.html">Complaints</a>
             <a href="./profile.html">Dashboard</a>
+            <a href="./complaint.html" style="opacity:0.5;pointer-events:none;cursor:not-allowed">Raise Complaint</a>
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
     </nav>
@@ -85,18 +86,23 @@
 
             <!-- Voice Recording -->
             <div class="form-section">
-                <h3>Voice Message (Optional)</h3>
+                <h3>🎙️ Voice Message (Optional)</h3>
                 <p class="form-hint">Record your complaint in your own words</p>
                 <div class="voice-recorder">
                     <button class="btn btn-outline" id="recordBtn" onclick="toggleRecording()">
-                        Start Recording
+                        🎙️ Start Recording
                     </button>
                     <span id="recordStatus" class="record-status"></span>
-                    <audio id="audioPlayer" controls style="display:none; margin-top:10px; width:100%"></audio>
+                    <audio id="audioPlayer" controls style="display:none;margin-top:10px;width:100%"></audio>
+                    <button id="deleteVoiceBtn" onclick="deleteVoice()"
+                        style="display:none;margin-top:8px;padding:6px 14px;background:var(--danger);
+                        color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem">
+                        🗑️ Delete & Re-record
+                    </button>
                 </div>
             </div>
 
-            <!-- Proof Document Upload ← உள்ளே இருக்கு இப்போ ✅ -->
+            <!-- Proof Document Upload -->
             <div class="form-section">
                 <h3>📎 Proof Document (Optional)</h3>
                 <div class="form-group">
@@ -110,7 +116,7 @@
             </div>
 
             <button class="btn btn-accent" id="submitBtn" onclick="submitComplaint()"
-                style="width:100%; padding:14px; font-size:1rem; margin-top:10px">
+                style="width:100%;padding:14px;font-size:1rem;margin-top:10px">
                 Submit Complaint
             </button>
 

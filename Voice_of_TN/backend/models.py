@@ -22,9 +22,10 @@ class User(Base):
     age             = Column(Integer,     nullable=True)
     profile_picture = Column(String(255), nullable=True)
     role            = Column(String(20),  default="citizen")
+    department      = Column(String(150), nullable=True)   # c_admin-க்கு
     created_at      = Column(DateTime,    server_default=func.now())
 
-    complaints = relationship("Complaint", back_populates="user")
+    complaints = relationship("Complaint", back_populates="user", foreign_keys="Complaint.user_id")
 
 
 class Complaint(Base):
@@ -42,10 +43,12 @@ class Complaint(Base):
     subcategory   = Column(String(150), nullable=False)
     description   = Column(Text,        nullable=False)
     voice_file    = Column(String(255), nullable=True)
-    proof_doc     = Column(String(255), nullable=True)   # ✅ proof document path
+    proof_doc     = Column(String(255), nullable=True)
+    assigned_to   = Column(Integer, ForeignKey("users.id"), nullable=True)  # c_admin id
     status        = Column(String(30),  default="pending")
     admin_message = Column(Text,        nullable=True)
     created_at    = Column(DateTime,    server_default=func.now())
     updated_at    = Column(DateTime,    server_default=func.now(), onupdate=func.now())
 
-    user = relationship("User", back_populates="complaints")
+    user          = relationship("User", back_populates="complaints", foreign_keys=[user_id])
+    assigned_admin = relationship("User", foreign_keys=[assigned_to])

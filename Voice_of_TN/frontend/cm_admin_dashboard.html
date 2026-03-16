@@ -23,14 +23,17 @@
             <button class="btn-logout" onclick="adminLogout()">Logout</button>
         </div>
     </nav>
+
     <div class="page-header" style="background:linear-gradient(135deg,#4A235A,#6C3483)">
         <div class="container">
             <h1>CM Admin Dashboard</h1>
             <p>Final resolution authority - Mark complaints as Solved</p>
         </div>
     </div>
+
     <div class="container section">
         <div class="admin-stats fade-in" id="adminStats"></div>
+
         <div class="card fade-in-delay-1" style="margin-bottom:24px">
             <div class="filter-row">
                 <div class="fgroup">
@@ -44,21 +47,26 @@
                     <select id="aStatus" onchange="applyFilter()">
                         <option value="">All Status</option>
                         <option value="pending">Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
+                        <option value="under_investigation">Under Investigation</option>
+                        <option value="resolved">Resolved</option>
                         <option value="solved">Solved</option>
+                        <option value="rejected">Rejected</option>
                     </select>
                 </div>
             </div>
         </div>
+
         <div id="adminList" class="fade-in-delay-2">
             <div class="spinner"></div>
         </div>
     </div>
+
+    <!-- Modal -->
     <div class="modal-overlay" id="modal" style="display:none">
         <div class="modal-card">
             <h3>Resolve Complaint <span id="modalId"></span></h3>
             <p style="color:var(--text-light);font-size:0.85rem;margin-bottom:16px" id="modalDesc"></p>
+
             <div class="form-group">
                 <label>Update Status</label>
                 <select id="newStatus">
@@ -66,16 +74,27 @@
                     <option value="solved">Solved</option>
                 </select>
             </div>
+
+            <!-- ✅ Forward to Department Admin -->
+            <div class="form-group">
+                <label>Forward to Department Admin</label>
+                <select id="assignAdmin">
+                    <option value="">-- Auto assign by department --</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>Message to Citizen (required when Solved)</label>
                 <textarea id="adminMsg" placeholder="Explain resolution to citizen..." rows="3"></textarea>
             </div>
+
             <div class="modal-btns">
                 <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="updateStatus()">Update</button>
             </div>
         </div>
     </div>
+
     <footer class="footer">2026 Voice of TN - CM Admin</footer>
     <script src="./js/config.js"></script>
     <script src="./js/cm_admin.js"></script>

@@ -51,10 +51,11 @@ async function toggleRecording() {
 
             mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
             mediaRecorder.onstop = () => {
-                recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                player.src   = URL.createObjectURL(recordedBlob);
+                recordedBlob         = new Blob(audioChunks, { type: 'audio/webm' });
+                player.src           = URL.createObjectURL(recordedBlob);
                 player.style.display = 'block';
                 stream.getTracks().forEach(t => t.stop());
+                document.getElementById('deleteVoiceBtn').style.display = 'inline-block';
             };
 
             mediaRecorder.start();
@@ -81,6 +82,24 @@ async function toggleRecording() {
     }
 }
 
+// ─── Delete Voice ─────────────────────────────────
+function deleteVoice() {
+    recordedBlob = null;
+    const player = document.getElementById('audioPlayer');
+    const btn    = document.getElementById('recordBtn');
+    const status = document.getElementById('recordStatus');
+    const delBtn = document.getElementById('deleteVoiceBtn');
+
+    player.src           = '';
+    player.style.display = 'none';
+    delBtn.style.display = 'none';
+    btn.textContent      = '🎙️ Start Recording';
+    btn.style.background = '';
+    btn.style.color      = '';
+    status.textContent   = 'Voice deleted. Record again!';
+    status.className     = 'record-status';
+}
+
 // ─── Submit Complaint ─────────────────────────────
 async function submitComplaint() {
     const citizen_name = document.getElementById('citizen_name').value.trim();
@@ -92,7 +111,7 @@ async function submitComplaint() {
     const submitBtn    = document.getElementById('submitBtn');
     const successMsg   = document.getElementById('successMsg');
     const errorMsg     = document.getElementById('errorMsg');
-    const proofDoc     = document.getElementById('proofDoc').files[0]; // ✅ ஒரே இடம்
+    const proofDoc     = document.getElementById('proofDoc').files[0];
 
     successMsg.style.display = 'none';
     errorMsg.style.display   = 'none';
@@ -144,9 +163,7 @@ async function submitComplaint() {
         });
 
         if (res.ok) {
-            successMsg.textContent   = 'Complaint submitted successfully! Redirecting...';
-            successMsg.style.display = 'block';
-            setTimeout(() => window.location.href = './profile.html', 1500);
+            window.location.href = './profile.html';
         } else {
             const err = await res.json();
             errorMsg.textContent   = err.detail || 'Submission failed';

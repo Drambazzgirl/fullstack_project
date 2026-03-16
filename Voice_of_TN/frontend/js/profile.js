@@ -145,7 +145,7 @@ async function loadMyComplaints() {
                         </button>
                     ` : ''}
                 </div>
-                ${c.admin_message ? `<div class="mci-admin-msg">💬 <b>Admin message:</b> ${c.admin_message}</div>` : ''}
+                ${c.admin_message ? `<div class="mci-admin-msg">💬 ${c.admin_message}</div>` : ''}
             `;
             container.appendChild(item);
         });

@@ -30,9 +30,12 @@ function buildFilters() {
     });
 }
 
+// ✅ Assigned complaints மட்டும் load பண்ணு
 async function loadComplaints() {
     try {
-        const res     = await fetch(`${API_BASE_URL}/complaints/`);
+        const res     = await fetch(`${API_BASE_URL}/complaints/assigned`, {
+            headers: authHeader()
+        });
         allComplaints = await res.json();
         buildStats(allComplaints);
         applyFilter();
@@ -42,15 +45,14 @@ async function loadComplaints() {
 }
 
 function buildStats(data) {
-    const counts = { total: data.length, under_investigation: 0, resolved: 0, rejected: 0, solved: 0 };
+    const counts = { total: data.length, under_investigation: 0, resolved: 0, rejected: 0 };
     data.forEach(c => { if (counts[c.status] !== undefined) counts[c.status]++; });
 
     document.getElementById('adminStats').innerHTML = `
-        <div class="astat"><span class="anum">${counts.total}</span><div class="alabel">Total</div></div>
+        <div class="astat"><span class="anum">${counts.total}</span><div class="alabel">Total Assigned</div></div>
         <div class="astat info"><span class="anum">${counts.under_investigation}</span><div class="alabel">Investigating</div></div>
         <div class="astat success"><span class="anum">${counts.resolved}</span><div class="alabel">Resolved</div></div>
-        <div class="astat warning"><span class="anum">${counts.rejected}</span><div class="alabel">Rejected</div></div>
-        <div class="astat solved"><span class="anum">${counts.solved}</span><div class="alabel">Solved</div></div>
+        <div class="astat danger"><span class="anum">${counts.rejected}</span><div class="alabel">Rejected</div></div>
     `;
 }
 
@@ -66,7 +68,7 @@ function applyFilter() {
 function renderList(data) {
     const list = document.getElementById('adminList');
     if (data.length === 0) {
-        list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No complaints found</p></div>';
+        list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No complaints assigned yet</p></div>';
         return;
     }
     list.innerHTML = '';
@@ -85,8 +87,9 @@ function renderList(data) {
                     ${statusBadge(c.status)}
                     ${c.status === 'under_investigation' ? `
                         <button class="btn btn-primary" style="padding:7px 14px;font-size:0.82rem"
-                            onclick="openModal(${c.id}, '${c.subcategory}')">Update</button>
-                    ` : ''}
+                            onclick="openModal(${c.id}, '${c.subcategory.replace(/'/g, "\\'")}')">
+                            Update
+                        </button>` : ''}
                 </div>
             </div>
             <div class="aci-desc">${c.description}</div>
@@ -117,6 +120,7 @@ function openModal(id, desc) {
     selectedId = id;
     document.getElementById('modalId').textContent   = `#${id}`;
     document.getElementById('modalDesc').textContent = desc;
+    document.getElementById('adminMsg').value        = '';
     document.getElementById('modal').style.display   = 'flex';
 }
 

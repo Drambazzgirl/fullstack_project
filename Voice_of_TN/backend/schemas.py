@@ -6,7 +6,6 @@ from datetime import datetime
 
 
 # ─── User Schemas ─────────────────────────────────────────
-
 class UserRegister(BaseModel):
     name: str
     email: str
@@ -36,7 +35,6 @@ class UserResponse(BaseModel):
 
 
 # ─── Complaint Schemas ────────────────────────────────────
-
 class ComplaintCreate(BaseModel):
     citizen_name: str
     age: int
@@ -55,7 +53,8 @@ class ComplaintResponse(BaseModel):
     subcategory: str
     description: str
     voice_file:    Optional[str]
-    proof_doc:     Optional[str]    # ✅ proof document
+    proof_doc:     Optional[str]
+    assigned_to:   Optional[int] = None
     status: str
     admin_message: Optional[str]
     created_at: datetime
@@ -65,20 +64,19 @@ class ComplaintResponse(BaseModel):
         from_attributes = True
 
 class StatusUpdate(BaseModel):
-    status: str
-    message: Optional[str] = None
+    status:      str
+    message:     Optional[str] = None
+    assigned_to: Optional[int] = None   # ✅ manual assign
 
 
-# ─── Admin Schemas ────────────────────────────────────────
-
+# ─── Admin Schemas ──────────────────────────
 class AdminLogin(BaseModel):
     username: str
     password: str
     role: str
 
 
-# ─── Token Schema ─────────────────────────────────────────
-
+# ─── Token Schema ───────────────────────────
 class Token(BaseModel):
     access_token: str
     token_type: str

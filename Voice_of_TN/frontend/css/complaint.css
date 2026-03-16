@@ -14,7 +14,10 @@
     padding-bottom: 28px;
     border-bottom: 1px solid var(--border);
 }
-.form-section:last-of-type { border-bottom: none; }
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
 
 .form-section h3 {
     font-size: 1.1rem;
@@ -29,7 +32,12 @@
     gap: 16px;
 }
 
-.form-hint { color: var(--text-light); font-size: 0.84rem; margin-bottom: 12px; margin-top: -8px; }
+.form-hint {
+    color: var(--text-light);
+    font-size: 0.84rem;
+    margin-bottom: 12px;
+    margin-top: -8px;
+}
 
 .voice-recorder {
     background: var(--bg);
@@ -45,14 +53,26 @@
     font-size: 0.85rem;
     color: var(--text-light);
 }
+
 .record-status.recording {
     color: var(--danger);
     animation: pulse 1s infinite;
 }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1
+    }
+
+    50% {
+        opacity: 0.5
+    }
+}
 
 .error-global {
-    background: rgba(231,76,60,0.08);
+    background: rgba(231, 76, 60, 0.08);
     border-left: 3px solid var(--danger);
     color: var(--danger);
     padding: 10px 14px;
@@ -62,6 +82,11 @@
 }
 
 @media (max-width: 600px) {
-    .form-row { grid-template-columns: 1fr; }
-    .complaint-form-card { padding: 20px 16px; }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .complaint-form-card {
+        padding: 20px 16px;
+    }
 }

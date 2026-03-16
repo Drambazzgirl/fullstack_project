@@ -30,6 +30,21 @@ function buildFilters() {
     });
 }
 
+// ✅ c_admin list load பண்ணு
+async function loadCAdmins() {
+    try {
+        const res    = await fetch(`${API_BASE_URL}/admin/cadmins`, { headers: authHeader() });
+        const admins = await res.json();
+        const sel    = document.getElementById('assignAdmin');
+        sel.innerHTML = '<option value="">-- Auto assign by department --</option>';
+        admins.forEach(a => {
+            sel.innerHTML += `<option value="${a.id}">${a.name} (${a.department || 'No dept'})</option>`;
+        });
+    } catch (err) {
+        console.log('c_admin list load failed', err);
+    }
+}
+
 async function loadComplaints() {
     try {
         const res     = await fetch(`${API_BASE_URL}/complaints/`);
@@ -120,7 +135,9 @@ function openModal(id, desc) {
     document.getElementById('modalId').textContent   = `#${id}`;
     document.getElementById('modalDesc').textContent = desc;
     document.getElementById('adminMsg').value        = '';
+    document.getElementById('newStatus').value       = 'under_investigation';
     document.getElementById('modal').style.display   = 'flex';
+    loadCAdmins(); // ✅ modal open ஆகும்போது c_admin list load
 }
 
 function closeModal() {
@@ -129,8 +146,9 @@ function closeModal() {
 }
 
 async function updateStatus() {
-    const status  = document.getElementById('newStatus').value;
-    const message = document.getElementById('adminMsg').value.trim();
+    const status   = document.getElementById('newStatus').value;
+    const message  = document.getElementById('adminMsg').value.trim();
+    const assignId = document.getElementById('assignAdmin').value;
 
     if (status === 'solved' && !message) {
         alert('Please add a message to the citizen when marking as Solved');
@@ -141,7 +159,11 @@ async function updateStatus() {
         const res = await fetch(`${API_BASE_URL}/complaints/${selectedId}/status`, {
             method:  'PUT',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ status, message: message || null })
+            body:    JSON.stringify({
+                status,
+                message:     message || null,
+                assigned_to: assignId ? parseInt(assignId) : null  // ✅ manual assign
+            })
         });
 
         if (res.ok) {
