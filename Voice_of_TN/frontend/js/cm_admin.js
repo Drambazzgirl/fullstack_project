@@ -111,13 +111,13 @@ function renderList(data) {
                 <div class="aci-info">
                     <span>📅 ${formatDate(c.created_at)}</span>
                     ${c.voice_file ? `
-                        <a href="http://localhost:8000${c.voice_file}" target="_blank"
+                        <a href="https://fullstack-project-3neg.onrender.com${c.voice_file}" target="_blank"
                             style="color:#fff;font-size:0.82rem;background:rgba(255,255,255,0.2);
                             padding:4px 10px;border-radius:6px;text-decoration:none">
                             🎙️ Play Voice
                         </a>` : ''}
                     ${c.proof_doc ? `
-                        <a href="http://localhost:8000${c.proof_doc}" target="_blank"
+                        <a href="https://fullstack-project-3neg.onrender.com${c.proof_doc}" target="_blank"
                             style="color:#fff;font-size:0.82rem;background:rgba(255,255,255,0.2);
                             padding:4px 10px;border-radius:6px;text-decoration:none">
                             📄 View Proof

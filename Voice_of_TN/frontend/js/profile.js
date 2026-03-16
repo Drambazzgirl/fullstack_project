@@ -6,7 +6,7 @@ if (!isLoggedIn()) {
 }
 
 const API     = API_BASE_URL;
-const BACKEND = 'http://localhost:8000';
+const BACKEND = 'https://fullstack-project-3neg.onrender.com';
 
 // ─── Load User Profile ────────────────────────────
 async function loadProfile() {
