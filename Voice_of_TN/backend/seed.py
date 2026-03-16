@@ -1,46 +1,22 @@
-# seed.py - Run this ONCE to create admin accounts
-# Usage: python seed.py
-
-from database import SessionLocal, engine, Base
+from database import SessionLocal
 from models import User
 from utils import hash_password
 
-Base.metadata.create_all(bind=engine)
+def seed_admins():
+    db = SessionLocal()
+    try:
+        if db.query(User).filter(User.role == 'cm_admin').first():
+            print('Admins already exist, skipping seed')
+            return
 
-db = SessionLocal()
-
-def create_admin(name, username, password, role):
-    existing = db.query(User).filter(User.username == username).first()
-    if existing:
-        print(f"⚠️  {role} '{username}' already exists")
-        return
-    admin = User(
-        name          = name,
-        username      = username,
-        password_hash = hash_password(password),
-        role          = role
-    )
-    db.add(admin)
-    db.commit()
-    print(f"Created {role}: username={username}, password={password}")
-
-# Department Admin
-create_admin(
-    name     = "Department Admin",
-    username = "cadmin",
-    password = "cadmin@123",
-    role     = "c_admin"
-)
-
-# CM Admin
-create_admin(
-    name     = "Chief Minister Admin",
-    username = "cmadmin",
-    password = "cmadmin@123",
-    role     = "cm_admin"
-)
-
-db.close()
-print("\n🎉 Seed complete! Admin accounts ready.")
-print("c_admin  → username: cadmin   | password: cadmin@123")
-print("cm_admin → username: cmadmin  | password: cmadmin@123")
+        cm = User(name='CM Admin', username='cmadmin',
+                  password_hash=hash_password('admin123'), role='cm_admin')
+        ca = User(name='Chennai Admin', username='cadmin',
+                  password_hash=hash_password('admin123'), role='c_admin', district='Chennai')
+        db.add(cm)
+        db.add(ca)
+        db.commit()
+        print('Admins created!')
+    finally:
+        db.close()
+        
