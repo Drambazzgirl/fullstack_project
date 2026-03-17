@@ -30,15 +30,14 @@ function buildFilters() {
     });
 }
 
-// ✅ c_admin list load பண்ணு
 async function loadCAdmins() {
     try {
         const res    = await fetch(`${API_BASE_URL}/admin/cadmins`, { headers: authHeader() });
         const admins = await res.json();
         const sel    = document.getElementById('assignAdmin');
-        sel.innerHTML = '<option value="">-- Auto assign by department --</option>';
+        sel.innerHTML = '<option value="">-- Auto assign by district --</option>';
         admins.forEach(a => {
-            sel.innerHTML += `<option value="${a.id}">${a.name} (${a.department || 'No dept'})</option>`;
+            sel.innerHTML += `<option value="${a.id}">${a.name} (${a.district || 'No district'})</option>`;
         });
     } catch (err) {
         console.log('c_admin list load failed', err);
@@ -111,13 +110,13 @@ function renderList(data) {
                 <div class="aci-info">
                     <span>📅 ${formatDate(c.created_at)}</span>
                     ${c.voice_file ? `
-                        <a href="https://fullstack-project-3neg.onrender.com${c.voice_file}" target="_blank"
+                        <a href="${c.voice_file}" target="_blank"
                             style="color:#fff;font-size:0.82rem;background:rgba(255,255,255,0.2);
                             padding:4px 10px;border-radius:6px;text-decoration:none">
                             🎙️ Play Voice
                         </a>` : ''}
                     ${c.proof_doc ? `
-                        <a href="https://fullstack-project-3neg.onrender.com${c.proof_doc}" target="_blank"
+                        <a href="${c.proof_doc}" target="_blank"
                             style="color:#fff;font-size:0.82rem;background:rgba(255,255,255,0.2);
                             padding:4px 10px;border-radius:6px;text-decoration:none">
                             📄 View Proof
@@ -137,7 +136,7 @@ function openModal(id, desc) {
     document.getElementById('adminMsg').value        = '';
     document.getElementById('newStatus').value       = 'under_investigation';
     document.getElementById('modal').style.display   = 'flex';
-    loadCAdmins(); // ✅ modal open ஆகும்போது c_admin list load
+    loadCAdmins();
 }
 
 function closeModal() {
@@ -162,7 +161,7 @@ async function updateStatus() {
             body:    JSON.stringify({
                 status,
                 message:     message || null,
-                assigned_to: assignId ? parseInt(assignId) : null  // ✅ manual assign
+                assigned_to: assignId ? parseInt(assignId) : null
             })
         });
 

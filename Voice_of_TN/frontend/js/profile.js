@@ -132,8 +132,8 @@ async function loadMyComplaints() {
                 <div class="mci-bottom">
                     <span style="font-size:0.78rem;color:var(--text-light)">${c.district}</span>
                     <span style="font-size:0.78rem;color:var(--text-light)">${formatDate(c.created_at)}</span>
-                    ${c.voice_file ? `<a href="${BACKEND}${c.voice_file}" target="_blank" style="font-size:0.78rem;color:var(--primary)">🎙️ Voice</a>` : ''}
-                    ${c.proof_doc  ? `<a href="${BACKEND}${c.proof_doc}"  target="_blank" style="font-size:0.78rem;color:var(--primary)">📄 Proof</a>`  : ''}
+                    ${c.voice_file ? `<a href="${c.voice_file}" target="_blank" style="font-size:0.78rem;color:var(--primary)">🎙️ Voice</a>` : ''}
+                    ${c.proof_doc  ? `<a href="${c.proof_doc}"  target="_blank" style="font-size:0.78rem;color:var(--primary)">📄 Proof</a>`  : ''}
                     ${c.status === 'pending' ? `
                         <button onclick="openEdit(${c.id}, \`${c.description.replace(/`/g, '')}\`, '${c.subcategory}')"
                             style="font-size:0.78rem;padding:4px 10px;background:var(--info);color:#fff;border:none;border-radius:6px;cursor:pointer">
