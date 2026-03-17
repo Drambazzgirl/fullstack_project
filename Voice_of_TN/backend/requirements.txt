@@ -8,3 +8,4 @@ python-multipart
 python-dotenv
 aiofiles
 bcrypt==4.0.1
+cloudinary
