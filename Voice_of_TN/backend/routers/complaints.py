@@ -7,12 +7,31 @@ from database import get_db
 from models import Complaint, User
 from schemas import ComplaintResponse, StatusUpdate
 from utils import get_current_user_id, get_current_user_role
-import os, shutil, uuid
+import os, uuid
+import cloudinary
+import cloudinary.uploader
 
 router = APIRouter(prefix="/api/complaints", tags=["Complaints"])
 
-os.makedirs("uploads/voices", exist_ok=True)
-os.makedirs("uploads/proofs", exist_ok=True)
+# ✅ Cloudinary config
+cloudinary.config(
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key    = os.getenv("CLOUDINARY_API_KEY"),
+    api_secret = os.getenv("CLOUDINARY_API_SECRET")
+)
+
+def upload_to_cloudinary(file, folder):
+    """Upload file to Cloudinary and return URL"""
+    try:
+        result = cloudinary.uploader.upload(
+            file.file,
+            folder=folder,
+            resource_type="auto"
+        )
+        return result["secure_url"]
+    except Exception as e:
+        print(f"Cloudinary upload error: {e}")
+        return None
 
 
 # ─── RAISE COMPLAINT ──────────────────────────────────────
@@ -33,17 +52,11 @@ def create_complaint(
 
     voice_path = None
     if voice_file and voice_file.filename:
-        filename = f"{uuid.uuid4()}.{voice_file.filename.split('.')[-1]}"
-        with open(f"uploads/voices/{filename}", "wb") as f:
-            shutil.copyfileobj(voice_file.file, f)
-        voice_path = f"/uploads/voices/{filename}"
+        voice_path = upload_to_cloudinary(voice_file, "voiceoftn/voices")
 
     proof_path = None
     if proof_doc and proof_doc.filename:
-        filename = f"{uuid.uuid4()}.{proof_doc.filename.split('.')[-1]}"
-        with open(f"uploads/proofs/{filename}", "wb") as f:
-            shutil.copyfileobj(proof_doc.file, f)
-        proof_path = f"/uploads/proofs/{filename}"
+        proof_path = upload_to_cloudinary(proof_doc, "voiceoftn/proofs")
 
     complaint = Complaint(
         user_id=user_id, citizen_name=citizen_name, age=age,
@@ -119,13 +132,10 @@ def update_status(
     if data.message:
         complaint.admin_message = data.message
 
-    # ✅ cm_admin → under_investigation → district-wise c_admin auto assign
     if info["role"] == "cm_admin" and data.status == "under_investigation":
-        # Manual assign இருந்தா அதை use பண்ணு
         if data.assigned_to:
             complaint.assigned_to = data.assigned_to
         else:
-            # Auto assign — district match ஆகுற c_admin
             c_admin = db.query(User).filter(
                 User.role     == "c_admin",
                 User.district == complaint.district
