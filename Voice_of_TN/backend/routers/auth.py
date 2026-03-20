@@ -1,19 +1,23 @@
 # routers/auth.py - All citizen authentication routes
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 from schemas import UserRegister, UserUpdate, UserResponse, Token
 from utils import hash_password, verify_password, create_token, get_current_user_id
-import os, shutil, uuid
+import os
+import cloudinary
+import cloudinary.uploader
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
-UPLOAD_BASE = "/tmp/uploads" if os.environ.get("VERCEL") else "uploads"
-UPLOAD_DIR = f"{UPLOAD_BASE}/profiles"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# ✅ Cloudinary config
+cloudinary.config(
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key    = os.getenv("CLOUDINARY_API_KEY"),
+    api_secret = os.getenv("CLOUDINARY_API_SECRET")
+)
 
 
 # ─── REGISTER ─────────────────────────────────────────────
@@ -37,10 +41,11 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return {"message": "Registration successful", "user_id": new_user.id}
 
+
 # ─── LOGIN (JSON format) ───────────────────────────────────
 @router.post("/login/json", response_model=Token)
 def login_json(data: dict, db: Session = Depends(get_db)):
-    email = (data.get("username") or data.get("email") or "").lower().strip()
+    email    = (data.get("username") or data.get("email") or "").lower().strip()
     password = data.get("password")
 
     user = db.query(User).filter(User.email == email, User.role == "citizen").first()
@@ -75,10 +80,10 @@ def update_me(data: UserUpdate, authorization: str = Header(None), db: Session =
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if data.name:    user.name     = data.name
-    if data.phone:   user.phone    = data.phone
+    if data.name:     user.name     = data.name
+    if data.phone:    user.phone    = data.phone
     if data.district: user.district = data.district
-    if data.age:     user.age      = data.age
+    if data.age:      user.age      = data.age
 
     db.commit()
     db.refresh(user)
@@ -97,14 +102,15 @@ def upload_profile_pic(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Save file with unique name
-    ext      = file.filename.split(".")[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    filepath = os.path.join(UPLOAD_DIR, filename)
-
-    with open(filepath, "wb") as f:
-        shutil.copyfileobj(file.file, f)
-
-    user.profile_picture = f"/uploads/profiles/{filename}"
-    db.commit()
-    return {"profile_picture": user.profile_picture}
+    # ✅ Cloudinary-ல் upload பண்ணு
+    try:
+        result = cloudinary.uploader.upload(
+            file.file,
+            folder="voiceoftn/profiles",
+            resource_type="image"
+        )
+        user.profile_picture = result["secure_url"]
+        db.commit()
+        return {"profile_picture": user.profile_picture}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
