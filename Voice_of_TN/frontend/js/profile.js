@@ -18,7 +18,8 @@ async function loadProfile() {
         document.getElementById('profileEmail').textContent = user.email || '';
 
         if (user.profile_picture) {
-            document.getElementById('profileImg').src = BACKEND + user.profile_picture;
+            // ✅ Cloudinary URL - BACKEND prefix வேண்டாம்
+            document.getElementById('profileImg').src = user.profile_picture;
         }
 
         document.getElementById('editName').value     = user.name     || '';
@@ -82,7 +83,8 @@ async function uploadPic(input) {
         });
         const data = await res.json();
         if (data.profile_picture) {
-            document.getElementById('profileImg').src = BACKEND + data.profile_picture;
+            // ✅ Cloudinary URL - BACKEND prefix வேண்டாம்
+            document.getElementById('profileImg').src = data.profile_picture;
         }
     } catch (err) {
         console.error('Upload failed', err);
