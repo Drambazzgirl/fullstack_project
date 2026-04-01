@@ -1,6 +1,6 @@
 import os
 from database import SessionLocal
-from models import User
+from models import User, Complaint
 from utils import hash_password
 
 def seed_admins():
@@ -10,15 +10,37 @@ def seed_admins():
             if not os.getenv('RESET_SEED'):
                 print('Admins already exist, skipping seed')
                 return
-            # ✅ Reset - existing admins delete பண்ணி recreate பண்ணு
-            db.query(User).filter(User.role.in_(['cm_admin', 'c_admin'])).delete()
+
+            # ✅ FIX: Before deleting admins, remove reference in complaints
+            admin_ids = db.query(User.id).filter(
+                User.role.in_(['cm_admin', 'c_admin'])
+            ).all()
+
+            admin_ids = [id for (id,) in admin_ids]
+
+            db.query(Complaint).filter(
+                Complaint.assigned_to.in_(admin_ids)
+            ).update(
+                {Complaint.assigned_to: None},
+                synchronize_session=False
+            )
+
+            # ✅ Now delete admins
+            db.query(User).filter(
+                User.role.in_(['cm_admin', 'c_admin'])
+            ).delete(synchronize_session=False)
+
             db.commit()
 
         # CM Admin
-        db.add(User(name='CM Admin', username='cmadmin',
-                    password_hash=hash_password('admin123'), role='cm_admin'))
+        db.add(User(
+            name='CM Admin',
+            username='cmadmin',
+            password_hash=hash_password('admin123'),
+            role='cm_admin'
+        ))
 
-        # ✅ All District Admins
+        # District Admins
         districts = [
             ('Chennai',        'cadmin'),
             ('Chengalpattu',   'cadmin_chengalpattu'),
